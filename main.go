@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/defaultcf/fanboxsync/fanbox"
 	"github.com/urfave/cli/v2"
 )
 
@@ -31,8 +32,17 @@ var commandPull = &cli.Command{
 		if err != nil {
 			return err
 		}
-		log.Printf("creator_id: %s", config.Default.CreatorId)
-		log.Printf("session_id: %s", config.Default.SessionId)
+		creator_id := config.Default.CreatorId
+		session_id := config.Default.SessionId
+
+		client := fanbox.NewClient()
+		posts, err := client.GetPosts(creator_id, session_id)
+		if err != nil {
+			return err
+		}
+		for _, v := range posts {
+			log.Printf("post: %+v\n", v)
+		}
 
 		return nil
 	},
