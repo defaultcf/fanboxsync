@@ -35,13 +35,17 @@ var commandPull = &cli.Command{
 		creator_id := config.Default.CreatorId
 		session_id := config.Default.SessionId
 
-		client := fanbox.NewClient()
-		posts, err := client.GetPosts(creator_id, session_id)
+		client := fanbox.NewClient(creator_id, session_id)
+		posts, err := client.GetPosts()
 		if err != nil {
 			return err
 		}
 		for _, v := range posts {
-			log.Printf("post: %+v\n", v)
+			post, err := client.GetPost(v.Id)
+			if err != nil {
+				return err
+			}
+			log.Printf("post: %+v\n", post)
 		}
 
 		return nil
