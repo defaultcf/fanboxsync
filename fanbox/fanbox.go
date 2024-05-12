@@ -21,16 +21,35 @@ const (
 	BodyTypeUrlEmbed BodyType = "url_embed"
 )
 
+type UrlType string
+
+const (
+	UrlTypeCard    UrlType = "html.card"
+	UrlTypePost    UrlType = "fanbox.post"
+	UrlTypeDefault UrlType = "default"
+)
+
+type UrlEmbed struct {
+	Id       string
+	Type     UrlType
+	Html     string
+	Url      string   // only default
+	PostInfo struct { // only fanbox.post
+		Id        string
+		CreatorId string
+	}
+}
+
 type Post struct {
 	Id     string
 	Title  string
 	Status PostStatus
 	Body   struct {
 		Blocks []struct {
-			Type       BodyType // types: p, header, image, url_embed
-			Text       string   // only p, header
-			ImageId    string   // only image
-			UrlEmbedId string   // only url_embed
+			Type       BodyType
+			Text       string // only p, header
+			ImageId    string // only image
+			UrlEmbedId string // only url_embed
 			Styles     []struct {
 				Type   string
 				Offset int
@@ -43,11 +62,7 @@ type Post struct {
 			OriginalUrl  string
 			ThumbnailUrl string
 		}
-		UrlEmbedMap map[string]struct {
-			Id   string
-			Type string
-			Html string
-		}
+		UrlEmbedMap map[string]UrlEmbed
 	}
 }
 

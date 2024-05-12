@@ -1,8 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strings"
+
+	"golang.org/x/net/html"
 
 	"github.com/defaultcf/fanboxsync/fanbox"
 )
@@ -11,7 +14,7 @@ type Entry struct {
 	Id     string
 	Title  string
 	Status fanbox.PostStatus
-	Body   string // TODO: Markdown で持たせる
+	Body   string
 }
 
 func NewEntry(id string, title string, status string, body string) *Entry {
@@ -24,7 +27,6 @@ func NewEntry(id string, title string, status string, body string) *Entry {
 }
 
 func (e *Entry) ConvertPost(post *fanbox.Post) {
-	// TODO: FANBOX から Markdown の形式に変換する
 	var body []string
 	for _, v := range post.Body.Blocks {
 		switch v.Type {
@@ -35,7 +37,11 @@ func (e *Entry) ConvertPost(post *fanbox.Post) {
 		case fanbox.BodyTypeImage:
 			body = append(body, fmt.Sprintf("![](%s)", post.Body.ImageMap[v.ImageId].OriginalUrl))
 		case fanbox.BodyTypeUrlEmbed:
-			body = append(body, post.Body.UrlEmbedMap[v.UrlEmbedId].Html)
+			url_type := post.Body.UrlEmbedMap[v.UrlEmbedId].Type
+			url, err := getEmbedUrl(url_type, post.Body.UrlEmbedMap[v.UrlEmbedId])
+			if err == nil {
+				body = append(body, fmt.Sprintf("[リンク](%s)", url))
+			}
 		}
 	}
 	e.Id = post.Id
@@ -48,4 +54,25 @@ func (e *Entry) ConvertFanbox() *fanbox.Post {
 	// TODO: Markdown から FANBOX の形式に変換する
 
 	return &fanbox.Post{}
+}
+
+func getEmbedUrl(url_type fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
+	node, err := html.Parse(strings.NewReader(data.Html))
+	if err != nil {
+		return "", err
+	}
+	var url string
+	switch url_type {
+	case fanbox.UrlTypeCard:
+		attr := node.FirstChild.FirstChild.NextSibling.FirstChild.FirstChild.FirstChild.Attr
+		url = attr[0].Val
+	case fanbox.UrlTypePost:
+		url = fmt.Sprintf("https://%s.fanbox.cc/posts/%s", data.PostInfo.CreatorId, data.PostInfo.Id)
+	case fanbox.UrlTypeDefault:
+		url = data.Url
+	default:
+		return "", errors.New("unexpected url type")
+	}
+
+	return url, nil
 }
