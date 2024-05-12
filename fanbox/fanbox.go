@@ -12,21 +12,41 @@ const (
 	PostStatusDraft     PostStatus = "draft"
 )
 
+type BodyType string
+
+const (
+	BodyTypeP        BodyType = "p"
+	BodyTypeHeader   BodyType = "header"
+	BodyTypeImage    BodyType = "image"
+	BodyTypeUrlEmbed BodyType = "url_embed"
+)
+
 type Post struct {
 	Id     string
 	Title  string
 	Status PostStatus
 	Body   struct {
 		Blocks []struct {
-			Type       string // p, header, image, url_embed
-			Text       string // only p, header
-			ImageId    string // only image
-			UrlEmbedId string // only url_embed
+			Type       BodyType // types: p, header, image, url_embed
+			Text       string   // only p, header
+			ImageId    string   // only image
+			UrlEmbedId string   // only url_embed
 			Styles     []struct {
 				Type   string
 				Offset int
 				Length int
 			}
+		}
+		ImageMap map[string]struct {
+			Id           string
+			Extension    string
+			OriginalUrl  string
+			ThumbnailUrl string
+		}
+		UrlEmbedMap map[string]struct {
+			Id   string
+			Type string
+			Html string
 		}
 	}
 }

@@ -45,7 +45,11 @@ var commandPull = &cli.Command{
 			if err != nil {
 				return err
 			}
-			log.Printf("post: %+v\n", post)
+			//log.Printf("post: %+v\n", post)
+
+			e := NewEntry("", "", "", "")
+			e.ConvertPost(post)
+			log.Printf("entry: %+v\n", e)
 		}
 
 		return nil
