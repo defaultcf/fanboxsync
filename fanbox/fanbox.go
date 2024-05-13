@@ -25,6 +25,7 @@ type UrlType string
 
 const (
 	UrlTypeCard    UrlType = "html.card"
+	UrlTypeHtml    UrlType = "html"
 	UrlTypePost    UrlType = "fanbox.post"
 	UrlTypeDefault UrlType = "default"
 )

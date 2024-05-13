@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -35,12 +36,14 @@ func (e *Entry) ConvertPost(post *fanbox.Post) {
 		case fanbox.BodyTypeHeader:
 			body = append(body, fmt.Sprintf("## %s", v.Text))
 		case fanbox.BodyTypeImage:
-			body = append(body, fmt.Sprintf("![](%s)", post.Body.ImageMap[v.ImageId].OriginalUrl))
+			body = append(body, fmt.Sprintf("![%s](%s)", v.ImageId, post.Body.ImageMap[v.ImageId].OriginalUrl))
 		case fanbox.BodyTypeUrlEmbed:
 			url_type := post.Body.UrlEmbedMap[v.UrlEmbedId].Type
 			url, err := getEmbedUrl(url_type, post.Body.UrlEmbedMap[v.UrlEmbedId])
-			if err == nil {
-				body = append(body, fmt.Sprintf("[リンク](%s)", url))
+			if err != nil {
+				log.Fatal(err)
+			} else {
+				body = append(body, fmt.Sprintf("[%s](%s)", v.UrlEmbedId, url))
 			}
 		}
 	}
@@ -64,6 +67,12 @@ func getEmbedUrl(url_type fanbox.UrlType, data fanbox.UrlEmbed) (string, error) 
 	var url string
 	switch url_type {
 	case fanbox.UrlTypeCard:
+		attr := node.FirstChild.FirstChild.NextSibling.FirstChild.FirstChild.FirstChild.Attr
+		url, err = GetRealUrl(attr[0].Val)
+		if err != nil {
+			return "", err
+		}
+	case fanbox.UrlTypeHtml:
 		attr := node.FirstChild.FirstChild.NextSibling.FirstChild.FirstChild.FirstChild.Attr
 		url = attr[0].Val
 	case fanbox.UrlTypePost:
