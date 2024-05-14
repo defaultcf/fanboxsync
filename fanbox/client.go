@@ -5,14 +5,19 @@ import (
 	"net/http"
 )
 
+type HttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type Client struct {
-	http.Client
+	client     HttpClient
 	creator_id string
 	session_id string
 }
 
-func NewClient(creator_id string, session_id string) *Client {
+func NewClient(client HttpClient, creator_id string, session_id string) *Client {
 	return &Client{
+		client:     client,
 		creator_id: creator_id,
 		session_id: session_id,
 	}
@@ -27,7 +32,7 @@ func (c *Client) GetPosts() ([]*Post, error) {
 	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creator_id))
 	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.session_id))
 
-	response, err := c.Client.Do(request)
+	response, err := c.client.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +55,7 @@ func (c *Client) GetPost(post_id string) (*Post, error) {
 	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creator_id))
 	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.session_id))
 
-	response, err := c.Client.Do(request)
+	response, err := c.client.Do(request)
 	if err != nil {
 		return nil, err
 	}
