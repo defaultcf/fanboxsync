@@ -8,9 +8,7 @@ import (
 )
 
 func CommandPull(creator_id string, session_id string) error {
-	httpClient := &http.Client{
-		CheckRedirect: http.DefaultClient.CheckRedirect,
-	}
+	httpClient := &http.Client{}
 	client := fanbox.NewClient(httpClient, creator_id, session_id)
 	posts, err := client.GetPosts()
 	if err != nil {
