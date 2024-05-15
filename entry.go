@@ -38,8 +38,8 @@ func (e *Entry) ConvertPost(post *fanbox.Post) {
 		case fanbox.BodyTypeImage:
 			body = append(body, fmt.Sprintf("![%s](%s)", v.ImageId, post.Body.ImageMap[v.ImageId].OriginalUrl))
 		case fanbox.BodyTypeUrlEmbed:
-			url_type := post.Body.UrlEmbedMap[v.UrlEmbedId].Type
-			url, err := getEmbedUrl(url_type, post.Body.UrlEmbedMap[v.UrlEmbedId])
+			urlType := post.Body.UrlEmbedMap[v.UrlEmbedId].Type
+			url, err := getEmbedUrl(urlType, post.Body.UrlEmbedMap[v.UrlEmbedId])
 			if err != nil {
 				log.Fatal(err)
 			} else {
@@ -59,13 +59,13 @@ func (e *Entry) ConvertFanbox() *fanbox.Post {
 	return &fanbox.Post{}
 }
 
-func getEmbedUrl(url_type fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
+func getEmbedUrl(urlType fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
 	node, err := html.Parse(strings.NewReader(data.Html))
 	if err != nil {
 		return "", err
 	}
 	var url string
-	switch url_type {
+	switch urlType {
 	case fanbox.UrlTypeCard:
 		attr := node.FirstChild.FirstChild.NextSibling.FirstChild.FirstChild.FirstChild.Attr
 		url, err = GetRealUrl(attr[0].Val)

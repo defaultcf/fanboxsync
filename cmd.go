@@ -7,9 +7,9 @@ import (
 	"github.com/defaultcf/fanboxsync/fanbox"
 )
 
-func CommandPull(creator_id string, session_id string) error {
+func CommandPull(creatorId string, sessionId string) error {
 	httpClient := &http.Client{}
-	client := fanbox.NewClient(httpClient, creator_id, session_id)
+	client := fanbox.NewClient(httpClient, creatorId, sessionId)
 	posts, err := client.GetPosts()
 	if err != nil {
 		return err

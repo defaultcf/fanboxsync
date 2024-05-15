@@ -10,16 +10,16 @@ type HttpClient interface {
 }
 
 type Client struct {
-	http_client HttpClient
-	creator_id  string
-	session_id  string
+	httpClient HttpClient
+	creatorId  string
+	sessionId  string
 }
 
 func NewClient(http_client HttpClient, creator_id string, session_id string) *Client {
 	return &Client{
-		http_client: http_client,
-		creator_id:  creator_id,
-		session_id:  session_id,
+		httpClient: http_client,
+		creatorId:  creator_id,
+		sessionId:  session_id,
 	}
 }
 
@@ -29,10 +29,10 @@ func (c *Client) GetPosts() ([]*Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creator_id))
-	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.session_id))
+	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creatorId))
+	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.sessionId))
 
-	response, err := c.http_client.Do(request)
+	response, err := c.httpClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -52,10 +52,10 @@ func (c *Client) GetPost(post_id string) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creator_id))
-	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.session_id))
+	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creatorId))
+	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.sessionId))
 
-	response, err := c.http_client.Do(request)
+	response, err := c.httpClient.Do(request)
 	if err != nil {
 		return nil, err
 	}

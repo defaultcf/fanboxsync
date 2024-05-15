@@ -9,12 +9,12 @@ import (
 )
 
 type fakeClient struct {
-	http_client HttpClient
+	httpClient HttpClient
 }
 
 func NewFakeClient() *fakeClient {
 	return &fakeClient{
-		http_client: &fakeClient{},
+		httpClient: &fakeClient{},
 	}
 }
 

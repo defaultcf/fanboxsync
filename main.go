@@ -31,10 +31,10 @@ var commandPull = &cli.Command{
 		if err != nil {
 			return err
 		}
-		creator_id := config.Default.CreatorId
-		session_id := config.Default.SessionId
+		creatorId := config.Default.CreatorId
+		sessionId := config.Default.SessionId
 
-		err = CommandPull(creator_id, session_id)
+		err = CommandPull(creatorId, sessionId)
 		return err
 	},
 }
