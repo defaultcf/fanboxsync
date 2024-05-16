@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -12,15 +13,15 @@ import (
 	"github.com/defaultcf/fanboxsync/iframely"
 )
 
-type Entry struct {
+type entry struct {
 	Id     string
 	Title  string
 	Status fanbox.PostStatus
 	Body   string
 }
 
-func NewEntry(id string, title string, status string, body string) *Entry {
-	return &Entry{
+func NewEntry(id string, title string, status string, body string) *entry {
+	return &entry{
 		Id:     id,
 		Title:  title,
 		Status: fanbox.PostStatus(status),
@@ -28,7 +29,7 @@ func NewEntry(id string, title string, status string, body string) *Entry {
 	}
 }
 
-func (e *Entry) ConvertPost(post *fanbox.Post) {
+func (e *entry) ConvertPost(post *fanbox.Post) {
 	var body []string
 	for _, v := range post.Body.Blocks {
 		switch v.Type {
@@ -54,7 +55,7 @@ func (e *Entry) ConvertPost(post *fanbox.Post) {
 	e.Body = strings.Join(body, "\n")
 }
 
-func (e *Entry) ConvertFanbox() *fanbox.Post {
+func (e *entry) ConvertFanbox() *fanbox.Post {
 	// TODO: Markdown から FANBOX の形式に変換する
 
 	return &fanbox.Post{}
@@ -69,7 +70,8 @@ func getEmbedUrl(urlType fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
 	switch urlType {
 	case fanbox.UrlTypeCard:
 		attr := node.FirstChild.FirstChild.NextSibling.FirstChild.FirstChild.FirstChild.Attr
-		url, err = iframely.GetRealUrl(attr[0].Val)
+		iframelyClient := iframely.NewIframelyClient(&http.Client{})
+		url, err = iframelyClient.GetRealUrl(attr[0].Val)
 		if err != nil {
 			return "", err
 		}

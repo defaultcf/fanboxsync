@@ -9,14 +9,28 @@ import (
 	"regexp"
 )
 
+type httpClient interface {
+	Get(url string) (*http.Response, error)
+}
+
+type iframelyClient struct {
+	httpClient httpClient
+}
+
 type iframelyApi struct {
 	Id  string
 	Url string
 }
 
+func NewIframelyClient(httpClient httpClient) *iframelyClient {
+	return &iframelyClient{
+		httpClient: httpClient,
+	}
+}
+
 // https://iframely.com/docs/iframely-api
 
-func GetRealUrl(iframelyUrl string) (string, error) {
+func (c *iframelyClient) GetRealUrl(iframelyUrl string) (string, error) {
 	re := regexp.MustCompile(`^https:\/\/cdn\.iframe\.ly\/(\w+)`)
 	matches := re.FindAllStringSubmatch(iframelyUrl, -1)
 	if len(matches) != 1 {
@@ -24,29 +38,29 @@ func GetRealUrl(iframelyUrl string) (string, error) {
 	}
 	iframelyId := matches[0][1]
 
-	response, err := http.Get(fmt.Sprintf("https://cdn.iframe.ly/%s.json", iframelyId))
+	response, err := c.httpClient.Get(fmt.Sprintf("https://cdn.iframe.ly/%s.json", iframelyId))
 	if err != nil {
 		return "", err
 	}
 	defer response.Body.Close()
 
-	parsedBody, err := parseIframely(response.Body)
+	url, err := c.parseIframely(response.Body)
 	if err != nil {
 		return "", err
 	}
 
-	return parsedBody.Url, nil
+	return url, nil
 }
 
-func parseIframely(data io.Reader) (*iframelyApi, error) {
+func (c *iframelyClient) parseIframely(data io.Reader) (string, error) {
 	iframely := &iframelyApi{}
 	bytes, err := io.ReadAll(data)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	err = json.Unmarshal(bytes, iframely)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return iframely, nil
+	return iframely.Url, nil
 }

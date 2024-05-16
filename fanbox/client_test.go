@@ -1,20 +1,20 @@
 package fanbox_test
 
 import (
-	"log"
 	"testing"
 
 	"github.com/defaultcf/fanboxsync/fanbox"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetPosts(t *testing.T) {
 	tests := []struct {
 		name string
-		want []fanbox.Post
+		want []*fanbox.Post
 	}{
 		{
 			name: "投稿一覧を取得できる",
-			want: []fanbox.Post{
+			want: []*fanbox.Post{
 				{
 					Id:     "123456",
 					Title:  "はじめての投稿",
@@ -24,19 +24,20 @@ func TestGetPosts(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			// setup
 			httpClient := fanbox.NewFakeClient()
 			fanboxClient := fanbox.NewClient(httpClient, "creator_123", "session_123")
 
+			// execute
 			posts, err := fanboxClient.GetPosts()
-			log.Printf("posts: %+v", posts)
-			if err != nil {
-				t.Error("実行に失敗しました")
-			}
-			if posts[0].Id != test.want[0].Id {
-				t.Error("投稿一覧が正しく取得できていません")
-			}
+
+			// verify
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, posts)
 		})
 	}
 }

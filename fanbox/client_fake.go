@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -14,14 +13,11 @@ type fakeClient struct {
 
 func NewFakeClient() *fakeClient {
 	return &fakeClient{
-		httpClient: &fakeClient{},
+		httpClient: nil,
 	}
 }
 
 func (f *fakeClient) Do(request *http.Request) (*http.Response, error) {
-	log.Print("This is Fake Do!")
-	log.Printf("path: %s", request.URL.Path)
-
 	path := request.URL.Path
 	var responseBody []byte
 	switch path {
@@ -44,7 +40,6 @@ func (f *fakeClient) Do(request *http.Request) (*http.Response, error) {
 			},
 		})
 	}
-	log.Printf("response body: %+v", string(responseBody))
 
 	return &http.Response{
 		StatusCode: http.StatusOK,
