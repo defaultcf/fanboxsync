@@ -1,4 +1,4 @@
-package main
+package iframely
 
 import (
 	"encoding/json"

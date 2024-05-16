@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/html"
 
 	"github.com/defaultcf/fanboxsync/fanbox"
+	"github.com/defaultcf/fanboxsync/iframely"
 )
 
 type Entry struct {
@@ -68,7 +69,7 @@ func getEmbedUrl(urlType fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
 	switch urlType {
 	case fanbox.UrlTypeCard:
 		attr := node.FirstChild.FirstChild.NextSibling.FirstChild.FirstChild.FirstChild.Attr
-		url, err = GetRealUrl(attr[0].Val)
+		url, err = iframely.GetRealUrl(attr[0].Val)
 		if err != nil {
 			return "", err
 		}
