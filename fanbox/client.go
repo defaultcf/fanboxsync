@@ -38,12 +38,7 @@ func (c *Client) GetPosts() ([]*Post, error) {
 	}
 	defer response.Body.Close()
 
-	posts, err := ParsePosts(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return posts, nil
+	return ParsePosts(response.Body)
 }
 
 func (c *Client) GetPost(post_id string) (*Post, error) {
@@ -61,10 +56,5 @@ func (c *Client) GetPost(post_id string) (*Post, error) {
 	}
 	defer response.Body.Close()
 
-	post, err := ParsePost(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return post, nil
+	return ParsePost(response.Body)
 }

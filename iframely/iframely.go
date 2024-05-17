@@ -44,12 +44,7 @@ func (c *iframelyClient) GetRealUrl(iframelyUrl string) (string, error) {
 	}
 	defer response.Body.Close()
 
-	url, err := c.parseIframely(response.Body)
-	if err != nil {
-		return "", err
-	}
-
-	return url, nil
+	return c.parseIframely(response.Body)
 }
 
 func (c *iframelyClient) parseIframely(data io.Reader) (string, error) {

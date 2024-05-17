@@ -8,8 +8,7 @@ import (
 )
 
 func CommandPull(creatorId string, sessionId string) error {
-	httpClient := &http.Client{}
-	client := fanbox.NewClient(httpClient, creatorId, sessionId)
+	client := fanbox.NewClient(&http.Client{}, creatorId, sessionId)
 	posts, err := client.GetPosts()
 	if err != nil {
 		return err
