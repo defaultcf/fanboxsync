@@ -14,22 +14,24 @@ import (
 )
 
 type entry struct {
-	Id     string
-	Title  string
-	Status fanbox.PostStatus
-	Body   string
+	iframelyClient *iframely.IframelyClient
+	id             string
+	title          string
+	status         fanbox.PostStatus
+	body           string
 }
 
 func NewEntry(id string, title string, status string, body string) *entry {
 	return &entry{
-		Id:     id,
-		Title:  title,
-		Status: fanbox.PostStatus(status),
-		Body:   body,
+		iframelyClient: iframely.NewIframelyClient(&http.Client{}),
+		id:             id,
+		title:          title,
+		status:         fanbox.PostStatus(status),
+		body:           body,
 	}
 }
 
-func (e *entry) ConvertPost(post *fanbox.Post) {
+func (e *entry) ConvertPost(post *fanbox.Post) *entry {
 	var body []string
 	for _, v := range post.Body.Blocks {
 		switch v.Type {
@@ -41,7 +43,7 @@ func (e *entry) ConvertPost(post *fanbox.Post) {
 			body = append(body, fmt.Sprintf("![%s](%s)", v.ImageId, post.Body.ImageMap[v.ImageId].OriginalUrl))
 		case fanbox.BodyTypeUrlEmbed:
 			urlType := post.Body.UrlEmbedMap[v.UrlEmbedId].Type
-			url, err := getEmbedUrl(urlType, post.Body.UrlEmbedMap[v.UrlEmbedId])
+			url, err := e.getEmbedUrl(urlType, post.Body.UrlEmbedMap[v.UrlEmbedId])
 			if err != nil {
 				log.Fatal(err)
 			} else {
@@ -49,10 +51,13 @@ func (e *entry) ConvertPost(post *fanbox.Post) {
 			}
 		}
 	}
-	e.Id = post.Id
-	e.Title = post.Title
-	e.Status = post.Status
-	e.Body = strings.Join(body, "\n")
+
+	return &entry{
+		id:     post.Id,
+		title:  post.Title,
+		status: post.Status,
+		body:   strings.Join(body, "\n"),
+	}
 }
 
 func (e *entry) ConvertFanbox() *fanbox.Post {
@@ -61,7 +66,7 @@ func (e *entry) ConvertFanbox() *fanbox.Post {
 	return &fanbox.Post{}
 }
 
-func getEmbedUrl(urlType fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
+func (e *entry) getEmbedUrl(urlType fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
 	node, err := html.Parse(strings.NewReader(data.Html))
 	if err != nil {
 		return "", err
@@ -70,8 +75,7 @@ func getEmbedUrl(urlType fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
 	switch urlType {
 	case fanbox.UrlTypeCard:
 		attr := node.FirstChild.FirstChild.NextSibling.FirstChild.FirstChild.FirstChild.Attr
-		iframelyClient := iframely.NewIframelyClient(&http.Client{})
-		url, err = iframelyClient.GetRealUrl(attr[0].Val)
+		url, err = e.iframelyClient.GetRealUrl(attr[0].Val)
 		if err != nil {
 			return "", err
 		}

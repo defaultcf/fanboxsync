@@ -21,8 +21,8 @@ func CommandPull(creatorId string, sessionId string) error {
 		//log.Printf("post: %+v\n", post)
 
 		e := NewEntry("", "", "", "")
-		e.ConvertPost(post)
-		log.Printf("entry: %+v\n", e)
+		convertedEntry := e.ConvertPost(post)
+		log.Printf("entry: %+v\n", convertedEntry)
 	}
 	return nil
 }

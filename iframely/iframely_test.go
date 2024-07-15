@@ -27,7 +27,7 @@ func TestClient_GetReal(t *testing.T) {
 			t.Parallel()
 
 			//setup
-			fakeClient := iframely.NewFakeClient()
+			fakeClient := iframely.NewFakeHttpClient()
 			iframelyClient := iframely.NewIframelyClient(fakeClient)
 
 			// execute

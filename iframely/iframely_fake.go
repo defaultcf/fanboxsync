@@ -11,7 +11,7 @@ type fakeClient struct {
 	httpClient httpClient
 }
 
-func NewFakeClient() *fakeClient {
+func NewFakeHttpClient() *fakeClient {
 	return &fakeClient{
 		httpClient: nil,
 	}

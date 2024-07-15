@@ -29,7 +29,7 @@ func TestGetPosts(t *testing.T) {
 			t.Parallel()
 
 			// setup
-			httpClient := fanbox.NewFakeClient()
+			httpClient := fanbox.NewFakeHttpClient()
 			fanboxClient := fanbox.NewClient(httpClient, "creator_123", "session_123")
 
 			// execute

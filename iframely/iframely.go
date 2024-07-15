@@ -13,8 +13,8 @@ type httpClient interface {
 	Get(url string) (*http.Response, error)
 }
 
-type iframelyClient struct {
-	httpClient httpClient
+type IframelyClient struct {
+	HttpClient httpClient
 }
 
 type iframelyApi struct {
@@ -22,15 +22,15 @@ type iframelyApi struct {
 	Url string
 }
 
-func NewIframelyClient(httpClient httpClient) *iframelyClient {
-	return &iframelyClient{
-		httpClient: httpClient,
+func NewIframelyClient(httpClient httpClient) *IframelyClient {
+	return &IframelyClient{
+		HttpClient: httpClient,
 	}
 }
 
 // https://iframely.com/docs/iframely-api
 
-func (c *iframelyClient) GetRealUrl(iframelyUrl string) (string, error) {
+func (c *IframelyClient) GetRealUrl(iframelyUrl string) (string, error) {
 	re := regexp.MustCompile(`^https:\/\/cdn\.iframe\.ly\/(\w+)`)
 	matches := re.FindAllStringSubmatch(iframelyUrl, -1)
 	if len(matches) != 1 {
@@ -38,7 +38,7 @@ func (c *iframelyClient) GetRealUrl(iframelyUrl string) (string, error) {
 	}
 	iframelyId := matches[0][1]
 
-	response, err := c.httpClient.Get(fmt.Sprintf("https://cdn.iframe.ly/%s.json", iframelyId))
+	response, err := c.HttpClient.Get(fmt.Sprintf("https://cdn.iframe.ly/%s.json", iframelyId))
 	if err != nil {
 		return "", err
 	}
@@ -47,7 +47,7 @@ func (c *iframelyClient) GetRealUrl(iframelyUrl string) (string, error) {
 	return c.parseIframely(response.Body)
 }
 
-func (c *iframelyClient) parseIframely(data io.Reader) (string, error) {
+func (c *IframelyClient) parseIframely(data io.Reader) (string, error) {
 	iframely := &iframelyApi{}
 	bytes, err := io.ReadAll(data)
 	if err != nil {
