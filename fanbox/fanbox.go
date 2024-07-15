@@ -42,10 +42,12 @@ type UrlEmbed struct {
 }
 
 type Post struct {
-	Id     string
-	Title  string
-	Status PostStatus
-	Body   struct {
+	Id          string
+	Title       string
+	Status      PostStatus
+	UpdatedAt   string
+	PublishedAt string
+	Body        struct {
 		Blocks []struct {
 			Type       BodyType
 			Text       string // only p, header

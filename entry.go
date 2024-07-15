@@ -13,16 +13,18 @@ import (
 	"github.com/defaultcf/fanboxsync/iframely"
 )
 
-type entry struct {
+type Entry struct {
 	iframelyClient *iframely.IframelyClient
 	id             string
 	title          string
 	status         fanbox.PostStatus
 	body           string
+	updatedAt      string
+	publishedAt    string
 }
 
-func NewEntry(id string, title string, status string, body string) *entry {
-	return &entry{
+func NewEntry(id string, title string, status string, body string) *Entry {
+	return &Entry{
 		iframelyClient: iframely.NewIframelyClient(&http.Client{}),
 		id:             id,
 		title:          title,
@@ -31,7 +33,8 @@ func NewEntry(id string, title string, status string, body string) *entry {
 	}
 }
 
-func (e *entry) ConvertPost(post *fanbox.Post) *entry {
+// Fanbox から Markdown の形式に変換する
+func (e *Entry) ConvertPost(post *fanbox.Post) *Entry {
 	var body []string
 	for _, v := range post.Body.Blocks {
 		switch v.Type {
@@ -52,21 +55,23 @@ func (e *entry) ConvertPost(post *fanbox.Post) *entry {
 		}
 	}
 
-	return &entry{
-		id:     post.Id,
-		title:  post.Title,
-		status: post.Status,
-		body:   strings.Join(body, "\n"),
+	return &Entry{
+		id:          post.Id,
+		title:       post.Title,
+		status:      post.Status,
+		body:        strings.Join(body, "\n"),
+		updatedAt:   post.UpdatedAt,
+		publishedAt: post.PublishedAt,
 	}
 }
 
-func (e *entry) ConvertFanbox() *fanbox.Post {
+func (e *Entry) ConvertFanbox() *fanbox.Post {
 	// TODO: Markdown から FANBOX の形式に変換する
 
 	return &fanbox.Post{}
 }
 
-func (e *entry) getEmbedUrl(urlType fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
+func (e *Entry) getEmbedUrl(urlType fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {
 	node, err := html.Parse(strings.NewReader(data.Html))
 	if err != nil {
 		return "", err

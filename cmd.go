@@ -1,8 +1,10 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/defaultcf/fanboxsync/fanbox"
 )
@@ -18,11 +20,36 @@ func CommandPull(creatorId string, sessionId string) error {
 		if err != nil {
 			return err
 		}
-		//log.Printf("post: %+v\n", post)
 
 		e := NewEntry("", "", "", "")
 		convertedEntry := e.ConvertPost(post)
-		log.Printf("entry: %+v\n", convertedEntry)
+
+		err = saveFile(*convertedEntry)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
+}
+
+// YYYY-MM-DD-ID.txt の形で、現在のディレクトリにファイルを保存する
+func saveFile(entry Entry) error {
+	parsedTime, err := time.Parse(time.RFC3339, entry.updatedAt)
+	if err != nil {
+		return err
+	}
+	filePath := fmt.Sprintf("%s-%s.txt", parsedTime.Format(time.DateOnly), entry.id)
+
+	f, err := os.Create(filePath)
+	if err != nil {
+		return nil
+	}
+	defer f.Close()
+
+	_, err = f.Write([]byte(entry.body))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
