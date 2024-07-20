@@ -51,7 +51,12 @@ func CommandCreate(config *config) error {
 	}
 	log.Printf("postId: %s", postId)
 
-	// TODO: saveFile で保存する
+	entry := NewEntry(postId, "", "draft", "")
+	entry.updatedAt = time.Now().Format(time.RFC3339)
+	err = saveFile(*entry)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
