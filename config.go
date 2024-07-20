@@ -16,6 +16,7 @@ type config struct {
 type profileConfig struct {
 	CreatorId string `yaml:"creator_id"`
 	SessionId string `yaml:"session_id"`
+	CsrfToken string `yaml:"csrf_token"`
 }
 
 func newConfig() (*config, error) {

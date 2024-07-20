@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -9,8 +10,13 @@ import (
 	"github.com/defaultcf/fanboxsync/fanbox"
 )
 
-func CommandPull(creatorId string, sessionId string) error {
-	client := fanbox.NewClient(&http.Client{}, creatorId, sessionId)
+func CommandPull(config *config) error {
+	client := fanbox.NewClient(
+		&http.Client{},
+		config.Default.CreatorId,
+		config.Default.SessionId,
+		config.Default.CsrfToken,
+	)
 	posts, err := client.GetPosts()
 	if err != nil {
 		return err
@@ -29,6 +35,24 @@ func CommandPull(creatorId string, sessionId string) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func CommandCreate(config *config) error {
+	client := fanbox.NewClient(
+		&http.Client{},
+		config.Default.CreatorId,
+		config.Default.SessionId,
+		config.Default.CsrfToken,
+	)
+	postId, err := client.CreatePost()
+	if err != nil {
+		return err
+	}
+	log.Printf("postId: %s", postId)
+
+	// TODO: saveFile で保存する
+
 	return nil
 }
 

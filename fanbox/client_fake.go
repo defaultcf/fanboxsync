@@ -18,9 +18,8 @@ func NewFakeHttpClient() *fakeClient {
 }
 
 func (f *fakeClient) Do(request *http.Request) (*http.Response, error) {
-	path := request.URL.Path
 	var responseBody []byte
-	switch path {
+	switch request.URL.Path {
 	case "/post.listManaged":
 		responseBody, _ = json.Marshal(&BodyPosts{
 			Body: []*Post{
@@ -39,6 +38,8 @@ func (f *fakeClient) Do(request *http.Request) (*http.Response, error) {
 				Status: "published",
 			},
 		})
+	case "/post.create":
+		responseBody = []byte("{\"body\":{\"postId\":\"1234567\"}}")
 	}
 
 	return &http.Response{

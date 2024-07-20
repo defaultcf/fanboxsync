@@ -14,6 +14,7 @@ func main() {
 		Version: version,
 		Commands: []*cli.Command{
 			commandPull,
+			commandCreate,
 		},
 	}
 
@@ -31,10 +32,23 @@ var commandPull = &cli.Command{
 		if err != nil {
 			return err
 		}
-		creatorId := config.Default.CreatorId
-		sessionId := config.Default.SessionId
 
-		err = CommandPull(creatorId, sessionId)
+		err = CommandPull(config)
+		return err
+	},
+}
+
+var commandCreate = &cli.Command{
+	Name:  "create",
+	Usage: "Create post",
+	Action: func(ctx *cli.Context) error {
+		log.Print("create")
+		config, err := newConfig()
+		if err != nil {
+			return err
+		}
+
+		err = CommandCreate(config)
 		return err
 	},
 }
