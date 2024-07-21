@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -65,10 +66,54 @@ func (e *Entry) ConvertPost(post *fanbox.Post) *Entry {
 	}
 }
 
-func (e *Entry) ConvertFanbox() *fanbox.Post {
-	// TODO: Markdown から FANBOX の形式に変換する
+func (e *Entry) ConvertFanbox(entry *Entry) *fanbox.Post {
+	blocks := []fanbox.PostBodyBlock{}
+	for _, v := range strings.Split(entry.body, "\n") {
+		// Header
+		re := regexp.MustCompile(`^## (.+)`)
+		matches := re.FindStringSubmatch(v)
+		if len(matches) > 0 {
+			blocks = append(blocks, fanbox.PostBodyBlock{
+				Type: "header",
+				Text: matches[1],
+			})
+			continue
+		}
+		// Image
+		re = regexp.MustCompile(`^!\[(.+)\]\((.+)\)`)
+		matches = re.FindStringSubmatch(v)
+		if len(matches) > 0 {
+			blocks = append(blocks, fanbox.PostBodyBlock{
+				Type:    "image",
+				ImageId: matches[1],
+			})
+			continue
+		}
+		// UrlEmbed
+		re = regexp.MustCompile(`^\[(.+)\]\((.+)\)`)
+		matches = re.FindStringSubmatch(v)
+		if len(matches) > 0 {
+			blocks = append(blocks, fanbox.PostBodyBlock{
+				Type:       "url_embed",
+				UrlEmbedId: matches[1],
+			})
+			continue
+		}
+		// p
+		blocks = append(blocks, fanbox.PostBodyBlock{
+			Type: "p",
+			Text: v,
+		})
+	}
 
-	return &fanbox.Post{}
+	return &fanbox.Post{
+		Id:     entry.id,
+		Title:  entry.title,
+		Status: entry.status,
+		Body: fanbox.PostBody{
+			Blocks: blocks,
+		},
+	}
 }
 
 func (e *Entry) getEmbedUrl(urlType fanbox.UrlType, data fanbox.UrlEmbed) (string, error) {

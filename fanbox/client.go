@@ -108,8 +108,9 @@ func (c *Client) CreatePost() (string, error) {
 	return createPostResponse.Body.PostId, nil
 }
 
-//func (c *Client) PushPost(post *Post) error {
-//	url := fmt.Sprintf("https://api.fanbox.cc/post.create")
-//
-//	// TODO: Request.MultipartForm にデータを格納できるかも
-//}
+func (c *Client) PushPost(post *Post) error {
+	//url := fmt.Sprintf("https://api.fanbox.cc/post.create")
+
+	// TODO: Request.MultipartForm にデータを格納できるかも
+	return nil
+}

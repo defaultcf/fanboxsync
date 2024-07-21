@@ -15,6 +15,7 @@ func main() {
 		Commands: []*cli.Command{
 			commandPull,
 			commandCreate,
+			commandPush,
 		},
 	}
 
@@ -49,6 +50,22 @@ var commandCreate = &cli.Command{
 		}
 
 		err = CommandCreate(config)
+		return err
+	},
+}
+
+var commandPush = &cli.Command{
+	Name:  "push",
+	Usage: "Push post",
+	Action: func(ctx *cli.Context) error {
+		log.Print("push")
+		config, err := newConfig()
+		if err != nil {
+			return err
+		}
+
+		path := ctx.Args().Get(0)
+		err = CommandPush(config, path)
 		return err
 	},
 }

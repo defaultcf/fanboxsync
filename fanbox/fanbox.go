@@ -30,6 +30,18 @@ const (
 	UrlTypeDefault UrlType = "default"
 )
 
+type PostBodyBlock struct {
+	Type       BodyType
+	Text       string // only p, header
+	ImageId    string // only image
+	UrlEmbedId string // only url_embed
+	Styles     []struct {
+		Type   string
+		Offset int
+		Length int
+	}
+}
+
 type UrlEmbed struct {
 	Id       string
 	Type     UrlType
@@ -41,32 +53,24 @@ type UrlEmbed struct {
 	}
 }
 
+type PostBody struct {
+	Blocks   []PostBodyBlock
+	ImageMap map[string]struct {
+		Id           string
+		Extension    string
+		OriginalUrl  string
+		ThumbnailUrl string
+	}
+	UrlEmbedMap map[string]UrlEmbed
+}
+
 type Post struct {
 	Id          string
 	Title       string
 	Status      PostStatus
 	UpdatedAt   string
 	PublishedAt string
-	Body        struct {
-		Blocks []struct {
-			Type       BodyType
-			Text       string // only p, header
-			ImageId    string // only image
-			UrlEmbedId string // only url_embed
-			Styles     []struct {
-				Type   string
-				Offset int
-				Length int
-			}
-		}
-		ImageMap map[string]struct {
-			Id           string
-			Extension    string
-			OriginalUrl  string
-			ThumbnailUrl string
-		}
-		UrlEmbedMap map[string]UrlEmbed
-	}
+	Body        PostBody
 }
 
 type BodyPosts struct {
