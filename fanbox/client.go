@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
+	"mime/multipart"
 	"net/http"
 )
 
@@ -109,8 +111,60 @@ func (c *Client) CreatePost() (string, error) {
 }
 
 func (c *Client) PushPost(post *Post) error {
-	//url := fmt.Sprintf("https://api.fanbox.cc/post.create")
+	url := "https://api.fanbox.cc/post.update"
 
-	// TODO: Request.MultipartForm にデータを格納できるかも
+	var buffer bytes.Buffer
+	writer := multipart.NewWriter(&buffer)
+	if err := writer.WriteField("postId", post.Id); err != nil {
+		return err
+	}
+	if err := writer.WriteField("status", string(post.Status)); err != nil {
+		return err
+	}
+	if err := writer.WriteField("feeRequired", "500"); err != nil {
+		return err
+	}
+	if err := writer.WriteField("title", post.Title); err != nil {
+		return err
+	}
+	bodyJson, err := ConvertJson(post)
+	if err != nil {
+		return err
+	}
+	if err := writer.WriteField("body", bodyJson); err != nil {
+		return err
+	}
+	if err := writer.WriteField("tags", ""); err != nil {
+		return err
+	}
+	if err := writer.WriteField("tt", c.csrfToken); err != nil {
+		return err
+	}
+
+	if err := writer.Close(); err != nil {
+		return err
+	}
+
+	request, err := http.NewRequest("POST", url, &buffer)
+	if err != nil {
+		return err
+	}
+
+	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creatorId))
+	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.sessionId))
+	request.Header.Set("X-CSRF-Token", c.csrfToken)
+	response, err := c.httpClient.Do(request)
+
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	bytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+	log.Printf("response: %+v", string(bytes))
+
 	return nil
 }

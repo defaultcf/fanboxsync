@@ -3,6 +3,7 @@ package fanbox
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -40,6 +41,11 @@ func (f *fakeClient) Do(request *http.Request) (*http.Response, error) {
 		})
 	case "/post.create":
 		responseBody = []byte("{\"body\":{\"postId\":\"1234567\"}}")
+
+	case "/post.update":
+		responseBody = []byte("")
+	default:
+		return nil, fmt.Errorf("no paths matched")
 	}
 
 	return &http.Response{

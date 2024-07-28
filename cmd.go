@@ -52,7 +52,7 @@ func CommandCreate(config *config) error {
 		return err
 	}
 
-	entry := NewEntry(postId, "", "draft", "")
+	entry := NewEntry(postId, "", string(fanbox.PostStatusDraft), "")
 	entry.updatedAt = time.Now().Format(time.RFC3339)
 	err = saveFile(*entry)
 	if err != nil {
@@ -83,7 +83,6 @@ func CommandPush(config *config, path string) error {
 
 	entry := NewEntry(postId, "draft", "draft", string(bytes)) // TODO: タイトルをマークダウンから抽出
 	post := entry.ConvertFanbox(entry)
-	log.Printf("post: %+v", post)
 
 	client := fanbox.NewClient(
 		&http.Client{},

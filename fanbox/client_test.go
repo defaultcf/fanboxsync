@@ -70,3 +70,45 @@ func TestCreatePost(t *testing.T) {
 		})
 	}
 }
+
+func TestPushPost(t *testing.T) {
+	tests := []struct {
+		name string
+		post fanbox.Post
+		want error
+	}{
+		{
+			name: "ポストを更新できる",
+			post: fanbox.Post{
+				Id:     "1234567",
+				Title:  "テスト",
+				Status: fanbox.PostStatusDraft,
+				Body: fanbox.PostBody{
+					Blocks: []fanbox.PostBodyBlock{
+						{
+							Type: fanbox.BodyTypeP,
+							Text: "hoge",
+						},
+					},
+				},
+			},
+			want: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			// setup
+			httpClient := fanbox.NewFakeHttpClient()
+			fanboxClient := fanbox.NewClient(httpClient, "creator_123", "session_123", "csrfToken_123")
+
+			// execute
+			err := fanboxClient.PushPost(&tt.post)
+
+			// verify
+			assert.NoError(t, err)
+		})
+	}
+}

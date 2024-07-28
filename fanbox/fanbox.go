@@ -31,15 +31,15 @@ const (
 )
 
 type PostBodyBlock struct {
-	Type       BodyType
-	Text       string // only p, header
-	ImageId    string // only image
-	UrlEmbedId string // only url_embed
+	Type       BodyType `json:"type"`
+	Text       string   `json:"text,omitempty"`       // only p, header
+	ImageId    string   `json:"imageId,omitempty"`    // only image
+	UrlEmbedId string   `json:"urlEmbedId,omitempty"` // only url_embed
 	Styles     []struct {
 		Type   string
 		Offset int
 		Length int
-	}
+	} `json:"styles,omitempty"`
 }
 
 type UrlEmbed struct {
@@ -107,4 +107,14 @@ func ParsePost(data io.Reader) (*Post, error) {
 	}
 
 	return bodyPost.Body, nil
+}
+
+func ConvertJson(post *Post) (string, error) {
+	var blocks []PostBodyBlock
+	blocks = append(blocks, post.Body.Blocks...)
+	jsonString, err := json.Marshal(blocks)
+	if err != nil {
+		return "", err
+	}
+	return string(jsonString), nil
 }
