@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -49,7 +50,12 @@ var commandCreate = &cli.Command{
 			return err
 		}
 
-		err = CommandCreate(config)
+		title := ctx.Args().Get(0)
+		if title == "" {
+			return fmt.Errorf("title is empty")
+		}
+
+		err = CommandCreate(config, title)
 		return err
 	},
 }

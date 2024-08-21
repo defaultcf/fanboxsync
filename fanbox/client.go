@@ -86,10 +86,31 @@ func (c *Client) CreatePost() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creatorId))
-	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.sessionId))
-	request.Header.Set("X-CSRF-Token", c.csrfToken)
-	request.Header.Set("Content-Type", "application/json")
+
+	headers := []struct {
+		key   string
+		value string
+	}{
+		{
+			key:   "Origin",
+			value: fmt.Sprintf("https://%s.fanbox.cc", c.creatorId),
+		},
+		{
+			key:   "Cookie",
+			value: fmt.Sprintf("FANBOXSESSID=%s", c.sessionId),
+		},
+		{
+			key:   "X-CSRF-Token",
+			value: c.csrfToken,
+		},
+		{
+			key:   "Content-Type",
+			value: "application/json",
+		},
+	}
+	for _, header := range headers {
+		request.Header.Set(header.key, header.value)
+	}
 
 	response, err := c.httpClient.Do(request)
 	if err != nil {
@@ -115,30 +136,49 @@ func (c *Client) PushPost(post *Post) error {
 
 	var buffer bytes.Buffer
 	writer := multipart.NewWriter(&buffer)
-	if err := writer.WriteField("postId", post.Id); err != nil {
-		return err
-	}
-	if err := writer.WriteField("status", string(post.Status)); err != nil {
-		return err
-	}
-	if err := writer.WriteField("feeRequired", "500"); err != nil {
-		return err
-	}
-	if err := writer.WriteField("title", post.Title); err != nil {
-		return err
-	}
 	bodyJson, err := ConvertJson(post)
 	if err != nil {
 		return err
 	}
-	if err := writer.WriteField("body", bodyJson); err != nil {
-		return err
+
+	fields := []struct {
+		key   string
+		value string
+	}{
+		{
+			key:   "postId",
+			value: post.Id,
+		},
+		{
+			key:   "status",
+			value: string(post.Status),
+		},
+		{
+			key:   "feeRequired",
+			value: "500",
+		},
+		{
+			key:   "title",
+			value: post.Title,
+		},
+		{
+			key:   "body",
+			value: bodyJson,
+		},
+		{
+			key:   "tags",
+			value: "[]",
+		},
+		{
+			key:   "tt",
+			value: c.csrfToken,
+		},
 	}
-	if err := writer.WriteField("tags", ""); err != nil {
-		return err
-	}
-	if err := writer.WriteField("tt", c.csrfToken); err != nil {
-		return err
+	for _, field := range fields {
+		err := writer.WriteField(field.key, field.value)
+		if err != nil {
+			return err
+		}
 	}
 
 	if err := writer.Close(); err != nil {
@@ -150,9 +190,27 @@ func (c *Client) PushPost(post *Post) error {
 		return err
 	}
 
-	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creatorId))
-	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.sessionId))
-	request.Header.Set("X-CSRF-Token", c.csrfToken)
+	headers := []struct {
+		key   string
+		value string
+	}{
+		{
+			key:   "Content-Type",
+			value: writer.FormDataContentType(),
+		},
+		{
+			key:   "Cookie",
+			value: fmt.Sprintf("FANBOXSESSID=%s", c.sessionId),
+		},
+		{
+			key:   "Origin",
+			value: "https://www.fanbox.cc",
+		},
+	}
+	for _, header := range headers {
+		request.Header.Set(header.key, header.value)
+	}
+
 	response, err := c.httpClient.Do(request)
 
 	if err != nil {

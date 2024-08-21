@@ -100,6 +100,9 @@ func (e *Entry) ConvertFanbox(entry *Entry) *fanbox.Post {
 			continue
 		}
 		// p
+		if v == "" {
+			continue
+		}
 		blocks = append(blocks, fanbox.PostBodyBlock{
 			Type: "p",
 			Text: v,

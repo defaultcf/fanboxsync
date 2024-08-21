@@ -112,9 +112,15 @@ func ParsePost(data io.Reader) (*Post, error) {
 func ConvertJson(post *Post) (string, error) {
 	var blocks []PostBodyBlock
 	blocks = append(blocks, post.Body.Blocks...)
-	jsonString, err := json.Marshal(blocks)
+	jsonBytes, err := json.Marshal(blocks)
 	if err != nil {
 		return "", err
 	}
-	return string(jsonString), nil
+	jsonString := string(jsonBytes)
+
+	// 本文が空の場合、空の配列を返す
+	if jsonString == "null" {
+		return "[]", nil
+	}
+	return jsonString, nil
 }
