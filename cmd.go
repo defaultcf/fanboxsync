@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -66,15 +65,13 @@ func CommandCreate(config *config, title string) error {
 	return nil
 }
 
-func CommandPush(config *config, path string) error {
-	re := regexp.MustCompile(`(\d+)\.md$`)
-	matches := re.FindStringSubmatch(path)
-	if len(matches) == 0 {
-		return fmt.Errorf("can't find id")
-	}
-	postId := matches[1]
-	log.Printf("postId: %s", postId)
+type meta struct {
+	Id     string `yaml:"id"`
+	Title  string `yaml:"title"`
+	Status string `yaml:"status"`
+}
 
+func CommandPush(config *config, path string) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -85,7 +82,17 @@ func CommandPush(config *config, path string) error {
 		return err
 	}
 
-	entry := NewEntry(postId, "draft", "draft", string(bytes)) // TODO: タイトルをマークダウンから抽出
+	// メタデータをマークダウンから抽出
+	rawBody := string(bytes)
+	reMeta := regexp.MustCompile(`---\n`)
+	splited := reMeta.Split(rawBody, 3)
+	m := meta{}
+	err = yaml.Unmarshal([]byte(splited[1]), &m)
+	if err != nil {
+		return err
+	}
+
+	entry := NewEntry(m.Id, m.Title, m.Status, string(splited[2]))
 	post := entry.ConvertFanbox(entry)
 
 	client := fanbox.NewClient(
@@ -97,12 +104,6 @@ func CommandPush(config *config, path string) error {
 	client.PushPost(post)
 
 	return nil
-}
-
-type meta struct {
-	Id     string
-	Title  string
-	Status string
 }
 
 // YYYY-MM-DD-ID.txt の形で、現在のディレクトリにファイルを保存する
