@@ -3,7 +3,7 @@ module github.com/defaultcf/fanboxsync
 go 1.22.3
 
 require (
-	github.com/goccy/go-yaml v1.11.3
+	github.com/goccy/go-yaml v1.12.0
 	github.com/stretchr/testify v1.9.0
 	github.com/urfave/cli/v2 v2.27.2
 	golang.org/x/net v0.25.0
