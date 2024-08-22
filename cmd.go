@@ -30,7 +30,7 @@ func CommandPull(config *config) error {
 			return err
 		}
 
-		e := NewEntry("", "", "", "")
+		e := NewEntry("", "", "", "", "")
 		convertedEntry := e.ConvertPost(post)
 
 		err = saveFile(*convertedEntry)
@@ -52,7 +52,7 @@ func CommandCreate(config *config, title string) error {
 	if err != nil {
 		return err
 	}
-	entry := NewEntry(postId, title, string(fanbox.PostStatusDraft), "")
+	entry := NewEntry(postId, title, string(fanbox.PostStatusDraft), "0", "")
 	post := entry.ConvertFanbox(entry)
 	client.PushPost(post) // タイトルをセット
 
@@ -69,6 +69,7 @@ type meta struct {
 	Id     string `yaml:"id"`
 	Title  string `yaml:"title"`
 	Status string `yaml:"status"`
+	Fee    string `yaml:"fee"`
 }
 
 func CommandPush(config *config, path string) error {
@@ -92,7 +93,7 @@ func CommandPush(config *config, path string) error {
 		return err
 	}
 
-	entry := NewEntry(m.Id, m.Title, m.Status, string(splited[2]))
+	entry := NewEntry(m.Id, m.Title, m.Status, m.Fee, string(splited[2]))
 	post := entry.ConvertFanbox(entry)
 
 	client := fanbox.NewClient(
@@ -118,6 +119,7 @@ func saveFile(entry Entry) error {
 		Id:     entry.id,
 		Title:  entry.title,
 		Status: string(entry.status),
+		Fee:    string(entry.fee),
 	}
 	metaBytes, err := yaml.Marshal(meta)
 	if err != nil {

@@ -25,6 +25,6 @@ func (f *fakeClient) Get(url string) (*http.Response, error) {
 
 	return &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewBufferString(string(iframelyResponse))),
+		Body:       io.NopCloser(bytes.NewReader(iframelyResponse)),
 	}, nil
 }

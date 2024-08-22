@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -19,17 +20,19 @@ type Entry struct {
 	id             string
 	title          string
 	status         fanbox.PostStatus
+	fee            string
 	body           string
 	updatedAt      string
 	publishedAt    string
 }
 
-func NewEntry(id string, title string, status string, body string) *Entry {
+func NewEntry(id string, title string, status string, fee string, body string) *Entry {
 	return &Entry{
 		iframelyClient: iframely.NewIframelyClient(&http.Client{}),
 		id:             id,
 		title:          title,
 		status:         fanbox.PostStatus(status),
+		fee:            fee,
 		body:           body,
 	}
 }
@@ -60,6 +63,7 @@ func (e *Entry) ConvertPost(post *fanbox.Post) *Entry {
 		id:          post.Id,
 		title:       post.Title,
 		status:      post.Status,
+		fee:         fmt.Sprint(post.FeeRequired),
 		body:        strings.Join(body, "\n"),
 		updatedAt:   post.UpdatedAt,
 		publishedAt: post.PublishedAt,
@@ -109,10 +113,16 @@ func (e *Entry) ConvertFanbox(entry *Entry) *fanbox.Post {
 		})
 	}
 
+	fee, err := strconv.Atoi(entry.fee)
+	if err != nil {
+		return nil
+	}
+
 	return &fanbox.Post{
-		Id:     entry.id,
-		Title:  entry.title,
-		Status: entry.status,
+		Id:          entry.id,
+		Title:       entry.title,
+		Status:      entry.status,
+		FeeRequired: fee,
 		Body: fanbox.PostBody{
 			Blocks: blocks,
 		},

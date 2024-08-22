@@ -68,6 +68,7 @@ type Post struct {
 	Id          string
 	Title       string
 	Status      PostStatus
+	FeeRequired int
 	UpdatedAt   string
 	PublishedAt string
 	Body        PostBody
