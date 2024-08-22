@@ -75,14 +75,14 @@ type Post struct {
 }
 
 type BodyPosts struct {
-	Body []*Post
+	Body []Post
 }
 
 type BodyPost struct {
-	Body *Post
+	Body Post
 }
 
-func ParsePosts(data io.Reader) ([]*Post, error) {
+func ParsePosts(data io.Reader) ([]Post, error) {
 	bodyPosts := &BodyPosts{}
 	bytes, err := io.ReadAll(data)
 	if err != nil {
@@ -96,15 +96,15 @@ func ParsePosts(data io.Reader) ([]*Post, error) {
 	return bodyPosts.Body, nil
 }
 
-func ParsePost(data io.Reader) (*Post, error) {
+func ParsePost(data io.Reader) (Post, error) {
 	bodyPost := &BodyPost{}
 	bytes, err := io.ReadAll(data)
 	if err != nil {
-		return nil, err
+		return Post{}, err
 	}
 	err = json.Unmarshal(bytes, bodyPost)
 	if err != nil {
-		return nil, err
+		return Post{}, err
 	}
 
 	return bodyPost.Body, nil

@@ -31,7 +31,7 @@ func CommandPull(config *config) error {
 		}
 
 		e := NewEntry("", "", "", "", "")
-		convertedEntry := e.ConvertPost(post)
+		convertedEntry := e.ConvertPost(&post)
 
 		err = saveFile(*convertedEntry)
 		if err != nil {

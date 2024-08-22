@@ -30,7 +30,7 @@ func NewClient(httpClient HttpClient, creatorId string, sessionId string, csrfTo
 	}
 }
 
-func (c *Client) GetPosts() ([]*Post, error) {
+func (c *Client) GetPosts() ([]Post, error) {
 	url := "https://api.fanbox.cc/post.listManaged"
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -48,18 +48,18 @@ func (c *Client) GetPosts() ([]*Post, error) {
 	return ParsePosts(response.Body)
 }
 
-func (c *Client) GetPost(post_id string) (*Post, error) {
+func (c *Client) GetPost(post_id string) (Post, error) {
 	url := fmt.Sprintf("https://api.fanbox.cc/post.getEditable?postId=%s", post_id)
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return Post{}, err
 	}
 	request.Header.Set("Origin", fmt.Sprintf("https://%s.fanbox.cc", c.creatorId))
 	request.Header.Set("Cookie", fmt.Sprintf("FANBOXSESSID=%s", c.sessionId))
 
 	response, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, err
+		return Post{}, err
 	}
 	defer response.Body.Close()
 
@@ -155,7 +155,7 @@ func (c *Client) PushPost(post *Post) error {
 		},
 		{
 			key:   "feeRequired",
-			value: "500",
+			value: fmt.Sprint(post.FeeRequired),
 		},
 		{
 			key:   "title",
