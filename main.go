@@ -16,7 +16,7 @@ func main() {
 		Commands: []*cli.Command{
 			commandPull,
 			commandCreate,
-			commandPush,
+			//commandPush,
 		},
 	}
 

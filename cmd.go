@@ -2,65 +2,78 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
-	"github.com/defaultcf/fanboxsync/fanbox"
+	"github.com/defaultcf/fanbox-go"
 	"github.com/goccy/go-yaml"
 )
 
 func CommandPull(config *config) error {
-	client := fanbox.NewClient(
-		&http.Client{},
-		config.Default.CreatorId,
-		config.Default.SessionId,
-		config.Default.CsrfToken,
-	)
-	posts, err := client.GetPosts()
+	f, err := newFanbox(config)
 	if err != nil {
 		return err
 	}
+
+	posts, err := f.GetPosts()
+	if err != nil {
+		return err
+	}
+
 	for _, v := range posts {
-		post, err := client.GetPost(v.Id)
+		post, err := f.GetPost(v.ID.Value)
 		if err != nil {
 			return err
 		}
 
 		e := NewEntry("", "", "", "", "")
-		convertedEntry := e.ConvertPost(&post)
+		converted := e.ConvertPost(&post)
+		fmt.Printf("%+v\n", converted)
 
-		err = saveFile(*convertedEntry)
+		err = saveFile(*converted)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
 func CommandCreate(config *config, title string) error {
-	client := fanbox.NewClient(
-		&http.Client{},
-		config.Default.CreatorId,
-		config.Default.SessionId,
-		config.Default.CsrfToken,
-	)
-	postId, err := client.CreatePost()
+	f, err := newFanbox(config)
 	if err != nil {
 		return err
 	}
-	entry := NewEntry(postId, title, string(fanbox.PostStatusDraft), "0", "")
-	post := entry.ConvertFanbox(entry)
-	client.PushPost(post) // タイトルをセット
 
-	entry.updatedAt = time.Now().Format(time.RFC3339)
-	err = saveFile(*entry)
+	res, err := f.CreatePost()
 	if err != nil {
 		return err
 	}
+
+	entry := NewEntry(res.PostId.Value, title, string(fanbox.PostStatusDraft), "0", "")
+	post := entry.ConvertFanbox(entry)
+	f.PushPost(post)
+
+	//client := fanbox.NewClient(
+	//	&http.Client{},
+	//	config.Default.CreatorId,
+	//	config.Default.SessionId,
+	//	config.Default.CsrfToken,
+	//)
+	//postId, err := client.CreatePost()
+	//if err != nil {
+	//	return err
+	//}
+	//entry := NewEntry(postId, title, string(fanbox.PostStatusDraft), "0", "")
+	//post := entry.ConvertFanbox(entry)
+	//client.PushPost(post) // タイトルをセット
+
+	//entry.updatedAt = time.Now().Format(time.RFC3339)
+	//err = saveFile(*entry)
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }
@@ -73,36 +86,36 @@ type meta struct {
 }
 
 func CommandPush(config *config, path string) error {
-	f, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	bytes, err := io.ReadAll(f)
-	if err != nil {
-		return err
-	}
+	//f, err := os.Open(path)
+	//if err != nil {
+	//	return err
+	//}
+	//defer f.Close()
+	//bytes, err := io.ReadAll(f)
+	//if err != nil {
+	//	return err
+	//}
 
-	// メタデータをマークダウンから抽出
-	rawBody := string(bytes)
-	reMeta := regexp.MustCompile(`---\n`)
-	splited := reMeta.Split(rawBody, 3)
-	m := meta{}
-	err = yaml.Unmarshal([]byte(splited[1]), &m)
-	if err != nil {
-		return err
-	}
+	//// メタデータをマークダウンから抽出
+	//rawBody := string(bytes)
+	//reMeta := regexp.MustCompile(`---\n`)
+	//splited := reMeta.Split(rawBody, 3)
+	//m := meta{}
+	//err = yaml.Unmarshal([]byte(splited[1]), &m)
+	//if err != nil {
+	//	return err
+	//}
 
-	entry := NewEntry(m.Id, m.Title, m.Status, m.Fee, string(splited[2]))
-	post := entry.ConvertFanbox(entry)
+	//entry := NewEntry(m.Id, m.Title, m.Status, m.Fee, string(splited[2]))
+	//post := entry.ConvertFanbox(entry)
 
-	client := fanbox.NewClient(
-		&http.Client{},
-		config.Default.CreatorId,
-		config.Default.SessionId,
-		config.Default.CsrfToken,
-	)
-	client.PushPost(post)
+	//client := fanbox.NewClient(
+	//	&http.Client{},
+	//	config.Default.CreatorId,
+	//	config.Default.SessionId,
+	//	config.Default.CsrfToken,
+	//)
+	//client.PushPost(post)
 
 	return nil
 }
