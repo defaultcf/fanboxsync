@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/defaultcf/fanbox-go"
+	"github.com/defaultcf/fanboxsync/fanbox"
 	"github.com/goccy/go-yaml"
 )
 
 func CommandPull(config *config) error {
-	f, err := newFanbox(config)
+	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func CommandPull(config *config) error {
 }
 
 func CommandCreate(config *config, title string) error {
-	f, err := newFanbox(config)
+	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId)
 	if err != nil {
 		return err
 	}
@@ -51,9 +51,15 @@ func CommandCreate(config *config, title string) error {
 		return err
 	}
 
-	entry := NewEntry(res.PostId.Value, title, string(fanbox.PostStatusDraft), "0", "")
+	entry := NewEntry(res.PostId.Value, title, "draft", "0", "")
 	post := entry.ConvertFanbox(entry)
-	f.PushPost(post)
+	f.PushPost(post) // タイトルをセット
+
+	entry.updatedAt = time.Now().Format(time.RFC3339)
+	err = saveFile(*entry)
+	if err != nil {
+		return err
+	}
 
 	//client := fanbox.NewClient(
 	//	&http.Client{},
