@@ -2,8 +2,6 @@ github.com/cpuguy83/go-md2man/v2 v2.0.4 h1:wfIWP927BUkWJb2NmU/kNDYIBTh/ziUX91+lV
 github.com/cpuguy83/go-md2man/v2 v2.0.4/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/defaultcf/fanbox-go v0.0.0-20240826113055-04251ca7d905 h1:E1YeB/XrhU1v3r56uiVxlN8M9Y2/5vu84LFh8a3B9Q0=
-github.com/defaultcf/fanbox-go v0.0.0-20240826113055-04251ca7d905/go.mod h1:CGyI8y8sBxyYLLNyA8DgHpCmdyDiIvQO2PtVK/K7gL4=
 github.com/defaultcf/fanbox-go v0.0.0-20240826134006-43669a9d7388 h1:16plZvPaKCxGY272YrgHiqak8bm9w5Gnr8XBDNRfO2g=
 github.com/defaultcf/fanbox-go v0.0.0-20240826134006-43669a9d7388/go.mod h1:CGyI8y8sBxyYLLNyA8DgHpCmdyDiIvQO2PtVK/K7gL4=
 github.com/dlclark/regexp2 v1.11.4 h1:rPYF9/LECdNymJufQKmri9gV604RvvABwgOA8un7yAo=

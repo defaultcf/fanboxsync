@@ -47,6 +47,13 @@ func NewFanbox(csrfToken, sessionId string) (*CustomFanbox, error) {
 	}, err
 }
 
+func NewTestFanbox(client fanboxgo.Invoker) *CustomFanbox {
+	return &CustomFanbox{
+		Client:        client,
+		SecurityStore: SecurityStore{},
+	}
+}
+
 func (f *CustomFanbox) GetPosts() ([]fanboxgo.Post, error) {
 	res, err := f.Client.ListManagedPosts(context.TODO(), fanboxgo.ListManagedPostsParams{Origin: "https://www.fanbox.cc"})
 	if err != nil {
@@ -91,6 +98,9 @@ func (f *CustomFanbox) PushPost(post *fanboxgo.Post) (fanboxgo.Post, error) {
 		Tags:        []string{},
 		Tt:          fanboxgo.NewOptString(f.SecurityStore.rawCsrfToken),
 	}), fanboxgo.UpdatePostParams{Origin: "https://www.fanbox.cc"})
+	if err != nil {
+		return fanboxgo.Post{}, err
+	}
 
 	switch r := res.(type) {
 	case *fanboxgo.Update:
