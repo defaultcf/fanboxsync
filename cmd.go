@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -14,47 +13,52 @@ import (
 )
 
 func CommandPull(config *config) error {
-	client := fanbox.NewClient(
-		&http.Client{},
-		config.Default.CreatorId,
-		config.Default.SessionId,
-		config.Default.CsrfToken,
-	)
-	posts, err := client.GetPosts()
+	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId)
 	if err != nil {
 		return err
 	}
+
+	posts, err := f.GetPosts()
+	if err != nil {
+		return err
+	}
+
 	for _, v := range posts {
-		post, err := client.GetPost(v.Id)
+		post, err := f.GetPost(v.ID.Value)
 		if err != nil {
 			return err
 		}
 
 		e := NewEntry("", "", "", "", "")
-		convertedEntry := e.ConvertPost(&post)
+		converted := e.ConvertPost(&post)
+		fmt.Printf("%+v\n", converted)
 
-		err = saveFile(*convertedEntry)
+		err = saveFile(*converted)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
 func CommandCreate(config *config, title string) error {
-	client := fanbox.NewClient(
-		&http.Client{},
-		config.Default.CreatorId,
-		config.Default.SessionId,
-		config.Default.CsrfToken,
-	)
-	postId, err := client.CreatePost()
+	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId)
 	if err != nil {
 		return err
 	}
-	entry := NewEntry(postId, title, string(fanbox.PostStatusDraft), "0", "")
+
+	res, err := f.CreatePost()
+	if err != nil {
+		return err
+	}
+
+	entry := NewEntry(res.PostId.Value, title, "draft", "0", "")
 	post := entry.ConvertFanbox(entry)
-	client.PushPost(post) // タイトルをセット
+	_, err = f.PushPost(post) // タイトルをセット
+	if err != nil {
+		return err
+	}
 
 	entry.updatedAt = time.Now().Format(time.RFC3339)
 	err = saveFile(*entry)
@@ -73,12 +77,12 @@ type meta struct {
 }
 
 func CommandPush(config *config, path string) error {
-	f, err := os.Open(path)
+	fi, err := os.Open(path)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	bytes, err := io.ReadAll(f)
+	defer fi.Close()
+	bytes, err := io.ReadAll(fi)
 	if err != nil {
 		return err
 	}
@@ -96,13 +100,15 @@ func CommandPush(config *config, path string) error {
 	entry := NewEntry(m.Id, m.Title, m.Status, m.Fee, string(splited[2]))
 	post := entry.ConvertFanbox(entry)
 
-	client := fanbox.NewClient(
-		&http.Client{},
-		config.Default.CreatorId,
-		config.Default.SessionId,
-		config.Default.CsrfToken,
-	)
-	client.PushPost(post)
+	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId)
+	if err != nil {
+		return err
+	}
+
+	_, err = f.PushPost(post)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
