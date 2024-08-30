@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"sort"
 	"strconv"
 
 	fanboxgo "github.com/defaultcf/fanbox-go"
@@ -29,11 +30,7 @@ func NewFakeFanbox(posts map[string]fanboxgo.Post) *fakeFanbox {
 
 func (f *fakeFanbox) CreatePost(ctx context.Context, request fanboxgo.OptCreatePostReq, params fanboxgo.CreatePostParams) (fanboxgo.CreatePostRes, error) {
 	id := fmt.Sprint(1000000 + len(f.posts))
-	f.posts[string(id)] = fanboxgo.Post{ID: fanboxgo.NewOptString(id)}
-
-	//res := &fanboxgo.CreatePostBadRequestApplicationJSON{}
-	//j, _ := json.Marshal(fanboxgo.CreateBody{PostId: fanboxgo.NewOptString(id)})
-	//res.UnmarshalJSON(j)
+	f.posts[id] = fanboxgo.Post{ID: fanboxgo.NewOptString(id)}
 
 	return &fanboxgo.Create{
 		Body: fanboxgo.NewOptCreateBody(
@@ -45,15 +42,15 @@ func (f *fakeFanbox) CreatePost(ctx context.Context, request fanboxgo.OptCreateP
 }
 
 func (f fakeFanbox) GetEditablePost(ctx context.Context, params fanboxgo.GetEditablePostParams) (fanboxgo.GetEditablePostRes, error) {
-	//get := fanboxgo.Get{Body: fanboxgo.NewOptPost(f.posts[params.PostId])}
-	//j, _ := json.Marshal(fanboxgo.Post{})
-	//get.UnmarshalJSON(j)
-
 	return &fanboxgo.Get{Body: fanboxgo.NewOptPost(f.posts[params.PostId])}, nil
 }
 
 func (f fakeFanbox) ListManagedPosts(ctx context.Context, params fanboxgo.ListManagedPostsParams) (fanboxgo.ListManagedPostsRes, error) {
-	return &fanboxgo.List{Body: slices.Collect(maps.Values(f.posts))}, nil
+	posts := slices.Collect(maps.Values(f.posts))
+	sort.Slice(posts, func(i, j int) bool {
+		return posts[i].ID.Value < posts[j].ID.Value
+	})
+	return &fanboxgo.List{Body: posts}, nil
 }
 
 func (f fakeFanbox) UpdatePost(ctx context.Context, request fanboxgo.OptUpdatePostReq, params fanboxgo.UpdatePostParams) (fanboxgo.UpdatePostRes, error) {
