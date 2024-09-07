@@ -12,8 +12,12 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
+func userAgent() string {
+	return fmt.Sprintf("fanboxsync/%s", version)
+}
+
 func CommandPull(config *config) error {
-	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId)
+	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId, userAgent())
 	if err != nil {
 		return err
 	}
@@ -43,7 +47,7 @@ func CommandPull(config *config) error {
 }
 
 func CommandCreate(config *config, title string) error {
-	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId)
+	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId, userAgent())
 	if err != nil {
 		return err
 	}
@@ -100,7 +104,7 @@ func CommandPush(config *config, path string) error {
 	entry := NewEntry(m.Id, m.Title, m.Status, m.Fee, string(splited[2]))
 	post := entry.ConvertFanbox(entry)
 
-	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId)
+	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId, userAgent())
 	if err != nil {
 		return err
 	}
