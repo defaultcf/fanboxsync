@@ -53,7 +53,6 @@ func (e *Entry) ConvertPost(post *fanbox.Post) *Entry {
 				case "bold": // 現在のところ bold だけ確認されている
 					processedText += string(runeText[strPointer:style.Offset.Value])
 					nextPointer := style.Offset.Value + style.Length.Value
-					// style.Offset.Value から + style.Length までを ** で囲む
 					processedText += fmt.Sprintf("**%s**", string(runeText[style.Offset.Value:nextPointer]))
 					strPointer = nextPointer
 				default:
@@ -123,23 +122,33 @@ func (e *Entry) ConvertFanbox(entry *Entry) *fanbox.Post {
 			continue
 		}
 		// p
-		re = regexp.MustCompile(`\*\*.+?\*\*`)
-		matchIndexes := re.FindAllStringIndex(v, -1)
+		re = regexp.MustCompile(`\*\*(.+?)\*\*`)
+		matchIndexes := re.FindAllStringIndex(v, -1) // ここで得られる位置は rune ではなく string のもの
 		styles := []fanbox.PostBodyBlocksItemStylesItem{}
+		processedText := ""
+		strPointer := 0
 		for _, matchIndex := range matchIndexes {
-			offset := len([]rune(v[:matchIndex[0]]))
-			length := len([]rune(v[matchIndex[0]:matchIndex[1]]))
+			processedText += v[strPointer:matchIndex[0]]
+			offset := len([]rune(processedText))
+			matchStr := re.FindStringSubmatch(v[matchIndex[0]:matchIndex[1]])[1]
+			processedText += matchStr
+			length := len([]rune(processedText)) - offset
+
 			styles = append(styles, fanbox.PostBodyBlocksItemStylesItem{
 				Type:   fanbox.NewOptString("bold"),
 				Offset: fanbox.NewOptInt(offset),
 				Length: fanbox.NewOptInt(length),
 			})
+			strPointer = matchIndex[1]
 		}
+		// 残りの部分を追加
+		processedText += v[strPointer:]
+
 		// styles が空ならそもそも付けて送ってはならないため
 		if len(styles) > 0 {
 			blocks = append(blocks, fanbox.PostBodyBlocksItem{
 				Type:   fanbox.NewOptPostBodyBlocksItemType(fanbox.PostBodyBlocksItemTypeP),
-				Text:   fanbox.NewOptString(v),
+				Text:   fanbox.NewOptString(processedText),
 				Styles: styles,
 			})
 		} else {
