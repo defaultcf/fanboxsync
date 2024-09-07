@@ -44,7 +44,7 @@ func NewFanbox(csrfToken, sessionId string) (*CustomFanbox, error) {
 	return &CustomFanbox{
 		Client:        c,
 		SecurityStore: s,
-	}, err
+	}, nil
 }
 
 func NewTestFanbox(client fanboxgo.Invoker) *CustomFanbox {
@@ -54,7 +54,7 @@ func NewTestFanbox(client fanboxgo.Invoker) *CustomFanbox {
 	}
 }
 
-func (f *CustomFanbox) GetPosts() ([]fanboxgo.Post, error) {
+func (f CustomFanbox) GetPosts() ([]fanboxgo.Post, error) {
 	res, err := f.Client.ListManagedPosts(context.TODO(), fanboxgo.ListManagedPostsParams{Origin: "https://www.fanbox.cc"})
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (f *CustomFanbox) GetPosts() ([]fanboxgo.Post, error) {
 	return res.(*fanboxgo.List).Body, nil
 }
 
-func (f *CustomFanbox) GetPost(postId string) (fanboxgo.Post, error) {
+func (f CustomFanbox) GetPost(postId string) (fanboxgo.Post, error) {
 	res, err := f.Client.GetEditablePost(context.TODO(), fanboxgo.GetEditablePostParams{Origin: "https://www.fanbox.cc", PostId: postId})
 	if err != nil {
 		return fanboxgo.Post{}, err
@@ -70,21 +70,21 @@ func (f *CustomFanbox) GetPost(postId string) (fanboxgo.Post, error) {
 	return res.(*fanboxgo.Get).Body.Value, nil
 }
 
-func (f *CustomFanbox) CreatePost() (fanboxgo.CreateBody, error) {
+func (f CustomFanbox) CreatePost() (string, error) {
 	res, err := f.Client.CreatePost(context.TODO(), fanboxgo.NewOptCreatePostReq(fanboxgo.CreatePostReq{Type: fanboxgo.CreatePostReqTypeArticle}), fanboxgo.CreatePostParams{Origin: "https://www.fanbox.cc"})
 	if err != nil {
-		return fanboxgo.CreateBody{}, err
+		return "", err
 	}
 
 	switch r := res.(type) {
 	case *fanboxgo.Create:
-		return r.Body.Value, nil
+		return r.Body.Value.PostId.Value, nil
 	default:
-		return fanboxgo.CreateBody{}, errors.New("error on create")
+		return "", errors.New("error on create")
 	}
 }
 
-func (f *CustomFanbox) PushPost(post *fanboxgo.Post) (fanboxgo.Post, error) {
+func (f CustomFanbox) PushPost(post *fanboxgo.Post) (fanboxgo.Post, error) {
 	bodyJson, err := convertJson(&post.Body.Value.Blocks)
 	if err != nil {
 		return fanboxgo.Post{}, err
@@ -108,6 +108,18 @@ func (f *CustomFanbox) PushPost(post *fanboxgo.Post) (fanboxgo.Post, error) {
 	default:
 		return fanboxgo.Post{}, errors.New("error on update")
 	}
+}
+
+func (f CustomFanbox) DeletePost(postId string) error {
+	_, err := f.Client.DeletePost(
+		context.TODO(),
+		fanboxgo.NewOptDeletePostReq(fanboxgo.DeletePostReq{PostId: postId}),
+		fanboxgo.DeletePostParams{Origin: "https://www.fanbox.cc"},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func convertJson(body *[]fanboxgo.PostBodyBlocksItem) (string, error) {

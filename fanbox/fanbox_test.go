@@ -112,13 +112,20 @@ func TestCreatePost(t *testing.T) {
 	tests := []struct {
 		name  string
 		posts map[string]fanboxgo.Post
-		want  fanboxgo.CreateBody
+		want  struct {
+			id  string
+			num int
+		}
 	}{
 		{
 			name:  "投稿が作成される",
 			posts: map[string]fanboxgo.Post{},
-			want: fanboxgo.CreateBody{
-				PostId: fanboxgo.NewOptString("1000000"),
+			want: struct {
+				id  string
+				num int
+			}{
+				id:  "1000000",
+				num: 1,
 			},
 		},
 	}
@@ -136,7 +143,9 @@ func TestCreatePost(t *testing.T) {
 
 			// verify
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, res)
+			assert.Equal(t, tt.want.id, res)
+			posts, _ := testFanbox.GetPosts()
+			assert.Equal(t, tt.want.num, len(posts))
 		})
 	}
 }
@@ -211,6 +220,48 @@ func TestPushPost(t *testing.T) {
 			// verify
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, res)
+
+			res, err = testFanbox.GetPost(tt.post.ID.Value)
+			assert.Equal(t, tt.want, res)
+		})
+	}
+}
+
+func TestDeletePost(t *testing.T) {
+	tests := []struct {
+		name  string
+		posts map[string]fanboxgo.Post
+		id    string
+		want  int
+	}{
+		{
+			name: "投稿を削除できる",
+			posts: map[string]fanboxgo.Post{
+				"1000000": {
+					ID:    fanboxgo.NewOptString("1000000"),
+					Title: fanboxgo.NewOptString("最初の投稿"),
+				},
+			},
+			id:   "1000000",
+			want: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			// setup
+			client := fanbox.NewFakeFanbox(tt.posts)
+			testFanbox := fanbox.NewTestFanbox(client)
+
+			// execute
+			err := testFanbox.DeletePost(tt.id)
+
+			// verify
+			assert.NoError(t, err)
+			posts, _ := testFanbox.GetPosts()
+			assert.Equal(t, tt.want, len(posts))
 		})
 	}
 }

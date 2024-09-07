@@ -28,14 +28,23 @@ func NewFakeFanbox(posts map[string]fanboxgo.Post) *fakeFanbox {
 	}
 }
 
-func (f *fakeFanbox) CreatePost(ctx context.Context, request fanboxgo.OptCreatePostReq, params fanboxgo.CreatePostParams) (fanboxgo.CreatePostRes, error) {
-	id := fmt.Sprint(1000000 + len(f.posts))
-	f.posts[id] = fanboxgo.Post{ID: fanboxgo.NewOptString(id)}
+func (f fakeFanbox) CreatePost(ctx context.Context, request fanboxgo.OptCreatePostReq, params fanboxgo.CreatePostParams) (fanboxgo.CreatePostRes, error) {
+	id := 1000000 + len(f.posts)
+	for {
+		_, exist := f.posts[fmt.Sprint(id)]
+		if exist {
+			id += 1
+		} else {
+			break
+		}
+	}
+	sid := fmt.Sprint(id)
+	f.posts[sid] = fanboxgo.Post{ID: fanboxgo.NewOptString(sid)}
 
 	return &fanboxgo.Create{
 		Body: fanboxgo.NewOptCreateBody(
 			fanboxgo.CreateBody{
-				PostId: fanboxgo.NewOptString(id),
+				PostId: fanboxgo.NewOptString(sid),
 			},
 		),
 	}, nil
@@ -75,4 +84,9 @@ func (f fakeFanbox) UpdatePost(ctx context.Context, request fanboxgo.OptUpdatePo
 		}),
 	}
 	return &fanboxgo.Update{Body: fanboxgo.NewOptPost(f.posts[request.Value.PostId.Value])}, nil
+}
+
+func (f fakeFanbox) DeletePost(ctx context.Context, request fanboxgo.OptDeletePostReq, params fanboxgo.DeletePostParams) (fanboxgo.DeletePostRes, error) {
+	delete(f.posts, request.Value.PostId)
+	return &fanboxgo.Delete{}, nil
 }

@@ -48,12 +48,12 @@ func CommandCreate(config *config, title string) error {
 		return err
 	}
 
-	res, err := f.CreatePost()
+	postId, err := f.CreatePost()
 	if err != nil {
 		return err
 	}
 
-	entry := NewEntry(res.PostId.Value, title, "draft", "0", "")
+	entry := NewEntry(postId, title, "draft", "0", "")
 	post := entry.ConvertFanbox(entry)
 	_, err = f.PushPost(post) // タイトルをセット
 	if err != nil {
