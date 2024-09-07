@@ -17,6 +17,7 @@ func main() {
 			commandPull,
 			commandCreate,
 			commandPush,
+			commandDelete,
 		},
 	}
 
@@ -72,6 +73,22 @@ var commandPush = &cli.Command{
 
 		path := ctx.Args().Get(0)
 		err = CommandPush(config, path)
+		return err
+	},
+}
+
+var commandDelete = &cli.Command{
+	Name:  "delete",
+	Usage: "Delete post",
+	Action: func(ctx *cli.Context) error {
+		log.Print("delete")
+		config, err := newConfig()
+		if err != nil {
+			return err
+		}
+
+		path := ctx.Args().Get(0)
+		err = CommandDelete(config, path)
 		return err
 	},
 }

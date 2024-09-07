@@ -117,6 +117,38 @@ func CommandPush(config *config, path string) error {
 	return nil
 }
 
+func CommandDelete(config *config, path string) error {
+	fi, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer fi.Close()
+	bytes, err := io.ReadAll(fi)
+	if err != nil {
+		return err
+	}
+
+	rawBody := string(bytes)
+	reMeta := regexp.MustCompile(`---\n\n`)
+	splited := reMeta.Split(rawBody, 2)
+	m := meta{}
+	err = yaml.Unmarshal([]byte(splited[0]), &m)
+	if err != nil {
+		return err
+	}
+
+	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId, userAgent())
+	if err != nil {
+		return err
+	}
+	err = f.DeletePost(m.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // YYYY-MM-DD-ID.txt の形で、現在のディレクトリにファイルを保存する
 func saveFile(entry Entry) error {
 	parsedTime, err := time.Parse(time.RFC3339, entry.updatedAt)
