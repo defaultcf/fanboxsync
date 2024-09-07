@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -39,21 +40,40 @@ func NewEntry(id string, title string, status string, fee string, body string) *
 // Fanbox から Markdown の形式に変換する
 func (e *Entry) ConvertPost(post *fanbox.Post) *Entry {
 	var body []string
-	for _, v := range post.Body.Value.Blocks {
-		switch t, _ := v.Type.Get(); t {
+	for _, block := range post.Body.Value.Blocks {
+		runeText := []rune(block.Text.Value)
+		processedText := ""
+		strPointer := 0
+		switch t, _ := block.Type.Get(); t {
 		case fanbox.PostBodyBlocksItemTypeP:
-			body = append(body, v.Text.Value)
+			// offset で昇順ソート
+			sort.SliceStable(block.Styles, func(i, j int) bool { return block.Styles[i].Offset.Value < block.Styles[j].Offset.Value })
+			for _, style := range block.Styles {
+				switch style.Type.Value {
+				case "bold": // 現在のところ bold だけ確認されている
+					processedText += string(runeText[strPointer:style.Offset.Value])
+					nextPointer := style.Offset.Value + style.Length.Value
+					// style.Offset.Value から + style.Length までを ** で囲む
+					processedText += fmt.Sprintf("**%s**", string(runeText[style.Offset.Value:nextPointer]))
+					strPointer = nextPointer
+				default:
+					log.Fatal("unknown style type")
+				}
+			}
+			// 残りの部分を追加
+			processedText += string(runeText[strPointer:])
+			body = append(body, processedText)
 		case fanbox.PostBodyBlocksItemTypeHeader:
-			body = append(body, fmt.Sprintf("## %s", v.Text.Value))
+			body = append(body, fmt.Sprintf("## %s", block.Text.Value))
 		case fanbox.PostBodyBlocksItemTypeImage:
-			body = append(body, fmt.Sprintf("![%s](%s)", v.ImageId.Value, post.Body.Value.ImageMap.Value[v.ImageId.Value].OriginalUrl.Value))
+			body = append(body, fmt.Sprintf("![%s](%s)", block.ImageId.Value, post.Body.Value.ImageMap.Value[block.ImageId.Value].OriginalUrl.Value))
 		case fanbox.PostBodyBlocksItemTypeURLEmbed:
-			urlType := post.Body.Value.UrlEmbedMap.Value[v.UrlEmbedId.Value].Type.Value
-			url, err := e.getEmbedUrl(urlType, post.Body.Value.UrlEmbedMap.Value[v.UrlEmbedId.Value])
+			urlType := post.Body.Value.UrlEmbedMap.Value[block.UrlEmbedId.Value].Type.Value
+			url, err := e.getEmbedUrl(urlType, post.Body.Value.UrlEmbedMap.Value[block.UrlEmbedId.Value])
 			if err != nil {
 				log.Fatal(err)
 			} else {
-				body = append(body, fmt.Sprintf("[%s](%s)", v.UrlEmbedId.Value, url))
+				body = append(body, fmt.Sprintf("[%s](%s)", block.UrlEmbedId.Value, url))
 			}
 		}
 	}
@@ -103,13 +123,31 @@ func (e *Entry) ConvertFanbox(entry *Entry) *fanbox.Post {
 			continue
 		}
 		// p
-		if v == "" {
-			continue
+		re = regexp.MustCompile(`\*\*.+?\*\*`)
+		matchIndexes := re.FindAllStringIndex(v, -1)
+		styles := []fanbox.PostBodyBlocksItemStylesItem{}
+		for _, matchIndex := range matchIndexes {
+			offset := len([]rune(v[:matchIndex[0]]))
+			length := len([]rune(v[matchIndex[0]:matchIndex[1]]))
+			styles = append(styles, fanbox.PostBodyBlocksItemStylesItem{
+				Type:   fanbox.NewOptString("bold"),
+				Offset: fanbox.NewOptInt(offset),
+				Length: fanbox.NewOptInt(length),
+			})
 		}
-		blocks = append(blocks, fanbox.PostBodyBlocksItem{
-			Type: fanbox.NewOptPostBodyBlocksItemType(fanbox.PostBodyBlocksItemTypeP),
-			Text: fanbox.NewOptString(v),
-		})
+		// styles が空ならそもそも付けて送ってはならないため
+		if len(styles) > 0 {
+			blocks = append(blocks, fanbox.PostBodyBlocksItem{
+				Type:   fanbox.NewOptPostBodyBlocksItemType(fanbox.PostBodyBlocksItemTypeP),
+				Text:   fanbox.NewOptString(v),
+				Styles: styles,
+			})
+		} else {
+			blocks = append(blocks, fanbox.PostBodyBlocksItem{
+				Type: fanbox.NewOptPostBodyBlocksItemType(fanbox.PostBodyBlocksItemTypeP),
+				Text: fanbox.NewOptString(v),
+			})
+		}
 	}
 
 	fee, err := strconv.Atoi(entry.fee)

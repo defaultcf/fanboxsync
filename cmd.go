@@ -93,15 +93,15 @@ func CommandPush(config *config, path string) error {
 
 	// メタデータをマークダウンから抽出
 	rawBody := string(bytes)
-	reMeta := regexp.MustCompile(`---\n`)
-	splited := reMeta.Split(rawBody, 3)
+	reMeta := regexp.MustCompile(`---\n\n`)
+	splited := reMeta.Split(rawBody, 2)
 	m := meta{}
-	err = yaml.Unmarshal([]byte(splited[1]), &m)
+	err = yaml.Unmarshal([]byte(splited[0]), &m)
 	if err != nil {
 		return err
 	}
 
-	entry := NewEntry(m.Id, m.Title, m.Status, m.Fee, string(splited[2]))
+	entry := NewEntry(m.Id, m.Title, m.Status, m.Fee, string(splited[1]))
 	post := entry.ConvertFanbox(entry)
 
 	f, err := fanbox.NewFanbox(config.Default.CsrfToken, config.Default.SessionId, userAgent())
