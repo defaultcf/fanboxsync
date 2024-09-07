@@ -221,7 +221,7 @@ func TestPushPost(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, res)
 
-			res, err = testFanbox.GetPost(tt.post.ID.Value)
+			res, _ = testFanbox.GetPost(tt.post.ID.Value)
 			assert.Equal(t, tt.want, res)
 		})
 	}
