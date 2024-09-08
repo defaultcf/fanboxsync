@@ -64,7 +64,7 @@ func CommandCreate(config *config, title string) error {
 		return err
 	}
 
-	entry.updatedAt = time.Now().Format(time.RFC3339)
+	entry.UpdatedAt = time.Now().Format(time.RFC3339)
 	err = saveFile(*entry)
 	if err != nil {
 		return err
@@ -151,17 +151,17 @@ func CommandDelete(config *config, path string) error {
 
 // YYYY-MM-DD-ID.txt の形で、現在のディレクトリにファイルを保存する
 func saveFile(entry Entry) error {
-	parsedTime, err := time.Parse(time.RFC3339, entry.updatedAt)
+	parsedTime, err := time.Parse(time.RFC3339, entry.UpdatedAt)
 	if err != nil {
 		return err
 	}
-	filePath := fmt.Sprintf("%s-%s.md", parsedTime.Format(time.DateOnly), entry.id)
+	filePath := fmt.Sprintf("%s-%s.md", parsedTime.Format(time.DateOnly), entry.ID)
 
 	meta := &meta{
-		Id:     entry.id,
-		Title:  entry.title,
-		Status: string(entry.status),
-		Fee:    string(entry.fee),
+		Id:     entry.ID,
+		Title:  entry.Title,
+		Status: string(entry.Status),
+		Fee:    string(entry.Fee),
 	}
 	metaBytes, err := yaml.Marshal(meta)
 	if err != nil {
@@ -175,7 +175,7 @@ func saveFile(entry Entry) error {
 	}
 	defer f.Close()
 
-	_, err = f.Write([]byte(strings.Join([]string{metaString, entry.body}, "\n")))
+	_, err = f.Write([]byte(strings.Join([]string{metaString, entry.Body}, "\n")))
 	if err != nil {
 		return err
 	}

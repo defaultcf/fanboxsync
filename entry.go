@@ -17,23 +17,23 @@ import (
 
 type Entry struct {
 	iframelyClient *iframely.IframelyClient
-	id             string
-	title          string
-	status         fanboxgo.PostStatus
-	fee            string
-	body           string
-	updatedAt      string
-	publishedAt    string
+	ID             string
+	Title          string
+	Status         fanboxgo.PostStatus
+	Fee            string
+	Body           string
+	UpdatedAt      string
+	PublishedAt    string
 }
 
 func NewEntry(id string, title string, status string, fee string, body string) *Entry {
 	return &Entry{
 		iframelyClient: iframely.NewIframelyClient(&http.Client{}),
-		id:             id,
-		title:          title,
-		status:         fanboxgo.PostStatus(status),
-		fee:            fee,
-		body:           body,
+		ID:             id,
+		Title:          title,
+		Status:         fanboxgo.PostStatus(status),
+		Fee:            fee,
+		Body:           body,
 	}
 }
 
@@ -78,19 +78,19 @@ func (e *Entry) ConvertPost(post *fanboxgo.Post) *Entry {
 	}
 
 	return &Entry{
-		id:          post.ID.Value,
-		title:       post.Title.Value,
-		status:      post.Status.Value,
-		fee:         fmt.Sprint(post.FeeRequired.Value),
-		body:        strings.Join(body, "\n"),
-		updatedAt:   post.UpdatedAt.Value,
-		publishedAt: post.PublishedAt.Value,
+		ID:          post.ID.Value,
+		Title:       post.Title.Value,
+		Status:      post.Status.Value,
+		Fee:         fmt.Sprint(post.FeeRequired.Value),
+		Body:        strings.Join(body, "\n"),
+		UpdatedAt:   post.UpdatedAt.Value,
+		PublishedAt: post.PublishedAt.Value,
 	}
 }
 
 func (e *Entry) ConvertFanbox(entry *Entry) *fanboxgo.Post {
 	blocks := []fanboxgo.PostBodyBlocksItem{}
-	for _, v := range strings.Split(entry.body, "\n") {
+	for _, v := range strings.Split(entry.Body, "\n") {
 		// Header
 		re := regexp.MustCompile(`^## (.+)`)
 		matches := re.FindStringSubmatch(v)
@@ -159,15 +159,15 @@ func (e *Entry) ConvertFanbox(entry *Entry) *fanboxgo.Post {
 		}
 	}
 
-	fee, err := strconv.Atoi(entry.fee)
+	fee, err := strconv.Atoi(entry.Fee)
 	if err != nil {
 		return nil
 	}
 
 	return &fanboxgo.Post{
-		ID:          fanboxgo.NewOptString(entry.id),
-		Title:       fanboxgo.NewOptString(entry.title),
-		Status:      fanboxgo.NewOptPostStatus(entry.status),
+		ID:          fanboxgo.NewOptString(entry.ID),
+		Title:       fanboxgo.NewOptString(entry.Title),
+		Status:      fanboxgo.NewOptPostStatus(entry.Status),
 		FeeRequired: fanboxgo.NewOptInt(fee),
 		Body: fanboxgo.NewOptPostBody(fanboxgo.PostBody{
 			Blocks: blocks,
