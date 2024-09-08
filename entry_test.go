@@ -36,7 +36,7 @@ func TestConvertPost(t *testing.T) {
 							Text: fanboxgo.NewOptString("これは太字です"),
 							Styles: []fanboxgo.PostBodyBlocksItemStylesItem{
 								{
-									Type:   fanboxgo.NewOptString("bold"),
+									Type:   fanboxgo.NewOptPostBodyBlocksItemStylesItemType(fanboxgo.PostBodyBlocksItemStylesItemTypeBold),
 									Offset: fanboxgo.NewOptInt(3),
 									Length: fanboxgo.NewOptInt(2),
 								},
@@ -106,7 +106,7 @@ func TestConvertFanbox(t *testing.T) {
 							Text: fanboxgo.NewOptString("これは太字です"),
 							Styles: []fanboxgo.PostBodyBlocksItemStylesItem{
 								{
-									Type:   fanboxgo.NewOptString("bold"),
+									Type:   fanboxgo.NewOptPostBodyBlocksItemStylesItemType(fanboxgo.PostBodyBlocksItemStylesItemTypeBold),
 									Offset: fanboxgo.NewOptInt(3),
 									Length: fanboxgo.NewOptInt(2),
 								},

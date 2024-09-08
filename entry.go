@@ -50,7 +50,7 @@ func (e *Entry) ConvertPost(post *fanboxgo.Post) *Entry {
 			sort.SliceStable(block.Styles, func(i, j int) bool { return block.Styles[i].Offset.Value < block.Styles[j].Offset.Value })
 			for _, style := range block.Styles {
 				switch style.Type.Value {
-				case "bold": // 現在のところ bold だけ確認されている
+				case fanboxgo.PostBodyBlocksItemStylesItemTypeBold: // 現在のところ bold だけ確認されている
 					processedText += string(runeText[strPointer:style.Offset.Value])
 					nextPointer := style.Offset.Value + style.Length.Value
 					processedText += fmt.Sprintf("**%s**", string(runeText[style.Offset.Value:nextPointer]))
@@ -135,7 +135,7 @@ func (e *Entry) ConvertFanbox(entry *Entry) *fanboxgo.Post {
 			length := len([]rune(processedText)) - offset
 
 			styles = append(styles, fanboxgo.PostBodyBlocksItemStylesItem{
-				Type:   fanboxgo.NewOptString("bold"),
+				Type:   fanboxgo.NewOptPostBodyBlocksItemStylesItemType(fanboxgo.PostBodyBlocksItemStylesItemTypeBold),
 				Offset: fanboxgo.NewOptInt(offset),
 				Length: fanboxgo.NewOptInt(length),
 			})
