@@ -1,22 +1,46 @@
 package fanboxconv_test
 
 import (
-	"fmt"
 	"testing"
 
 	. "github.com/defaultcf/fanboxsync/fanboxconv"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParser(t *testing.T) {
 	tests := []struct {
 		name  string
 		input string
-		want  string
+		want  []Token
 	}{
 		{
 			name:  "変換できる",
 			input: "**こんにちは**",
-			want:  "",
+			want: []Token{
+				{
+					ID: 1,
+					Parent: &Token{
+						ID:      0,
+						Parent:  &Token{},
+						ElmType: ElmTypeRoot,
+					},
+					ElmType: ElmTypeBold,
+				},
+				{
+					ID: 2,
+					Parent: &Token{
+						ID: 1,
+						Parent: &Token{
+							ID:      0,
+							Parent:  &Token{},
+							ElmType: ElmTypeRoot,
+						},
+						ElmType: ElmTypeBold,
+					},
+					ElmType: ElmTypeText,
+					Content: "hello",
+				},
+			},
 		},
 	}
 
@@ -28,9 +52,9 @@ func TestParser(t *testing.T) {
 
 			// execute
 			tokens := Parse("hoge**hello**")
-			fmt.Printf("%+v", tokens)
 
 			// verify
+			assert.Equal(t, tt.want, tokens)
 		})
 	}
 }

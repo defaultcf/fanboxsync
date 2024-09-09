@@ -1,7 +1,5 @@
 package fanboxconv
 
-import "strings"
-
 var rootToken = Token{
 	ID:      0,
 	Parent:  &Token{},
@@ -15,7 +13,7 @@ func tokenize(id int, originalText string, parent Token) []Token {
 	p := parent
 
 	for len(processingText) > 0 {
-		matches := matchWithBoldRegexp(processingText)
+		matches := indexWithBoldRegexp(processingText)
 		id += 1
 
 		if len(matches) == 0 { // どこにもマッチしない
@@ -29,8 +27,10 @@ func tokenize(id int, originalText string, parent Token) []Token {
 			elms = append(elms, elm)
 			p = elm
 
-			processingText = strings.Replace(processingText, matches[0], "", 1)
-			elms = append(elms, tokenize(id, matches[1], p)...)
+			nextText := matchWithBoldRegexp(processingText[matches[0]:matches[1]])[1]
+			elms = append(elms, tokenize(id, nextText, p)...)
+
+			processingText = processingText[matches[1]:]
 			p = parent
 		}
 	}

@@ -39,6 +39,11 @@ func genBoldElement(id int, text string, parent Token) Token {
 	}
 }
 
+func indexWithBoldRegexp(text string) []int {
+	re := regexp.MustCompile(BoldElmRegexp)
+	return re.FindStringIndex(text)
+}
+
 func matchWithBoldRegexp(text string) []string {
 	re := regexp.MustCompile(BoldElmRegexp)
 	return re.FindStringSubmatch(text)
