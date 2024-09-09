@@ -3,7 +3,7 @@ package iframely_test
 import (
 	"testing"
 
-	"github.com/defaultcf/fanboxsync/iframely"
+	. "github.com/defaultcf/fanboxsync/iframely"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,8 +27,8 @@ func TestClient_GetReal(t *testing.T) {
 			t.Parallel()
 
 			//setup
-			fakeClient := iframely.NewFakeHttpClient()
-			iframelyClient := iframely.NewIframelyClient(fakeClient)
+			fakeClient := NewFakeHttpClient()
+			iframelyClient := NewIframelyClient(fakeClient)
 
 			// execute
 			url, err := iframelyClient.GetRealUrl(tt.iframelyUrl)

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	fanboxgo "github.com/defaultcf/fanbox-go"
-	entry "github.com/defaultcf/fanboxsync"
+	. "github.com/defaultcf/fanboxsync"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,7 +12,7 @@ func TestConvertPost(t *testing.T) {
 	tests := []struct {
 		name string
 		post fanboxgo.Post
-		want entry.Entry
+		want Entry
 	}{
 		{
 			name: "FANBOX から Markdown に変換できる",
@@ -45,7 +45,7 @@ func TestConvertPost(t *testing.T) {
 					},
 				}),
 			},
-			want: entry.Entry{
+			want: Entry{
 				ID:     "1000000",
 				Title:  "テスト投稿",
 				Status: fanboxgo.PostStatusDraft,
@@ -60,7 +60,7 @@ func TestConvertPost(t *testing.T) {
 			t.Parallel()
 
 			// setup
-			e := entry.Entry{}
+			e := Entry{}
 
 			// execute
 			e = *e.ConvertPost(&tt.post)
@@ -74,12 +74,12 @@ func TestConvertPost(t *testing.T) {
 func TestConvertFanbox(t *testing.T) {
 	tests := []struct {
 		name  string
-		entry entry.Entry
+		entry Entry
 		want  fanboxgo.Post
 	}{
 		{
 			name: "Markdown から FANBOX に変換できる",
-			entry: entry.Entry{
+			entry: Entry{
 				ID:     "1000000",
 				Title:  "テスト投稿",
 				Status: fanboxgo.PostStatusDraft,
@@ -123,7 +123,7 @@ func TestConvertFanbox(t *testing.T) {
 			t.Parallel()
 
 			// setup
-			e := entry.Entry{}
+			e := Entry{}
 
 			// execute
 			post := *e.ConvertFanbox(&tt.entry)

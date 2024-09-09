@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	fanboxgo "github.com/defaultcf/fanbox-go"
-	"github.com/defaultcf/fanboxsync/fanbox"
+	. "github.com/defaultcf/fanboxsync/fanbox"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -44,8 +44,8 @@ func TestGetPosts(t *testing.T) {
 			t.Parallel()
 
 			// setup
-			client := fanbox.NewFakeFanbox(tt.posts)
-			testFanbox := fanbox.NewTestFanbox(client)
+			client := NewFakeFanbox(tt.posts)
+			testFanbox := NewTestFanbox(client)
 
 			// execute
 			posts, err := testFanbox.GetPosts()
@@ -95,8 +95,8 @@ func TestGetPost(t *testing.T) {
 			t.Parallel()
 
 			// setup
-			client := fanbox.NewFakeFanbox(tt.posts)
-			testFanbox := fanbox.NewTestFanbox(client)
+			client := NewFakeFanbox(tt.posts)
+			testFanbox := NewTestFanbox(client)
 
 			// execute
 			post, err := testFanbox.GetPost(tt.id)
@@ -135,8 +135,8 @@ func TestCreatePost(t *testing.T) {
 			t.Parallel()
 
 			// setup
-			client := fanbox.NewFakeFanbox(tt.posts)
-			testFanbox := fanbox.NewTestFanbox(client)
+			client := NewFakeFanbox(tt.posts)
+			testFanbox := NewTestFanbox(client)
 
 			// execute
 			res, err := testFanbox.CreatePost()
@@ -211,8 +211,8 @@ func TestPushPost(t *testing.T) {
 			t.Parallel()
 
 			// setup
-			client := fanbox.NewFakeFanbox(tt.posts)
-			testFanbox := fanbox.NewTestFanbox(client)
+			client := NewFakeFanbox(tt.posts)
+			testFanbox := NewTestFanbox(client)
 
 			// execute
 			res, err := testFanbox.PushPost(&tt.post)
@@ -252,8 +252,8 @@ func TestDeletePost(t *testing.T) {
 			t.Parallel()
 
 			// setup
-			client := fanbox.NewFakeFanbox(tt.posts)
-			testFanbox := fanbox.NewTestFanbox(client)
+			client := NewFakeFanbox(tt.posts)
+			testFanbox := NewTestFanbox(client)
 
 			// execute
 			err := testFanbox.DeletePost(tt.id)
