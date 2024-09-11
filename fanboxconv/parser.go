@@ -21,7 +21,13 @@ func tokenize(id int, originalText string, parent Token) []Token {
 			elms = append(elms, elm)
 			processingText = ""
 		} else {
-			// TODO: 行頭にテキストが来ている場合、別に処理する
+			// 行頭にテキストが来ている場合、別に処理する
+			if matches[0] > 0 {
+				elm := genTextElement(id, processingText[:matches[0]], p)
+				elms = append(elms, elm)
+				id += 1
+
+			}
 
 			elm := genBoldElement(id, "", p)
 			elms = append(elms, elm)
