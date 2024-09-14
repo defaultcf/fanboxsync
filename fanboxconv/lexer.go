@@ -14,9 +14,10 @@ type Token struct {
 type ElmType string
 
 const (
-	ElmTypeRoot ElmType = "root"
-	ElmTypeText ElmType = "text"
-	ElmTypeBold ElmType = "bold"
+	ElmTypeRoot   ElmType = "root"
+	ElmTypeMerged ElmType = "merged"
+	ElmTypeText   ElmType = "text"
+	ElmTypeBold   ElmType = "bold"
 )
 
 const BoldElmRegexp = `\*\*(.+?)\*\*`
