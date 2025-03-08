@@ -108,19 +108,27 @@ func (f CustomFanbox) CreatePost() (string, error) {
 }
 
 func (f CustomFanbox) PushPost(post *fanboxgo.Post) (fanboxgo.Post, error) {
+	var commentingPermissionScope fanboxgo.UpdatePostReqCommentingPermissionScope
+	if post.FeeRequired.Value == 0 {
+		commentingPermissionScope = fanboxgo.UpdatePostReqCommentingPermissionScopeEveryone
+	} else {
+		commentingPermissionScope = fanboxgo.UpdatePostReqCommentingPermissionScopeSupporters
+	}
+
 	bodyJson, err := convertJson(&post.Body.Value.Blocks)
 	if err != nil {
 		return fanboxgo.Post{}, err
 	}
 	res, err := f.Client.UpdatePost(context.TODO(),
 		fanboxgo.NewOptUpdatePostReq(fanboxgo.UpdatePostReq{
-			PostId:      post.ID,
-			Status:      fanboxgo.NewOptUpdatePostReqStatus(fanboxgo.UpdatePostReqStatus(post.Status.Value)),
-			FeeRequired: fanboxgo.NewOptString(fmt.Sprint(post.FeeRequired.Value)),
-			Title:       post.Title,
-			Body:        fanboxgo.NewOptString(bodyJson),
-			Tags:        []string{},
-			Tt:          fanboxgo.NewOptString(f.SecurityStore.rawCsrfToken),
+			PostId:                    post.ID,
+			Status:                    fanboxgo.NewOptUpdatePostReqStatus(fanboxgo.UpdatePostReqStatus(post.Status.Value)),
+			FeeRequired:               fanboxgo.NewOptString(fmt.Sprint(post.FeeRequired.Value)),
+			Title:                     post.Title,
+			CommentingPermissionScope: fanboxgo.NewOptUpdatePostReqCommentingPermissionScope(commentingPermissionScope),
+			Body:                      fanboxgo.NewOptString(bodyJson),
+			Tags:                      []string{},
+			Tt:                        fanboxgo.NewOptString(f.SecurityStore.rawCsrfToken),
 		}),
 		fanboxgo.UpdatePostParams{
 			Origin:    f.defaultParams.origin,
