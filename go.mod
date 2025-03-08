@@ -3,7 +3,7 @@ module github.com/defaultcf/fanboxsync
 go 1.23.0
 
 require (
-	github.com/defaultcf/fanbox-go v1.2.0
+	github.com/defaultcf/fanbox-go v1.2.1
 	github.com/goccy/go-yaml v1.15.19
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v2 v2.27.5
@@ -33,7 +33,6 @@ require (
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
