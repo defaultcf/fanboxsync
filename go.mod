@@ -4,10 +4,10 @@ go 1.23.0
 
 require (
 	github.com/defaultcf/fanbox-go v1.2.1
-	github.com/goccy/go-yaml v1.15.19
+	github.com/goccy/go-yaml v1.15.23
 	github.com/stretchr/testify v1.10.0
-	github.com/urfave/cli/v2 v2.27.5
-	golang.org/x/net v0.34.0
+	github.com/urfave/cli/v2 v2.27.6
+	golang.org/x/net v0.37.0
 )
 
 require (
@@ -30,9 +30,9 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
