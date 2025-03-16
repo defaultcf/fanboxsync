@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/defaultcf/fanbox-go v1.2.1
-	github.com/goccy/go-yaml v1.15.23
+	github.com/goccy/go-yaml v1.16.0
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v2 v2.27.6
 	golang.org/x/net v0.37.0
