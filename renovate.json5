@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended",
     "schedule:weekends",
-    "github>aquaproj/aqua-renovate-config#2.8.0",
+    "github>aquaproj/aqua-renovate-config#2.8.1",
   ],
   "automerge": true,
   "packageRules": [
