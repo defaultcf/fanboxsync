@@ -7,7 +7,7 @@ require (
 	github.com/goccy/go-yaml v1.18.0
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v2 v2.27.7
-	golang.org/x/net v0.43.0
+	golang.org/x/net v0.46.0
 )
 
 require (
