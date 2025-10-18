@@ -8,7 +8,7 @@
 #   - all
 registries:
 - type: standard
-  ref: v4.427.0 # renovate: depName=aquaproj/aqua-registry
+  ref: v4.428.0 # renovate: depName=aquaproj/aqua-registry
 packages:
 - name: golang/go@go1.25.3
 - name: dominikh/go-tools/staticcheck@2024.1.1
