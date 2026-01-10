@@ -6,7 +6,7 @@ toolchain go1.25.5
 
 require (
 	github.com/defaultcf/fanbox-go v1.2.1
-	github.com/goccy/go-yaml v1.19.1
+	github.com/goccy/go-yaml v1.19.2
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v2 v2.27.7
 	golang.org/x/net v0.48.0
