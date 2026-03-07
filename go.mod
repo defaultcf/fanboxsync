@@ -2,7 +2,7 @@ module github.com/defaultcf/fanboxsync
 
 go 1.25.0
 
-toolchain go1.26.0
+toolchain go1.26.1
 
 require (
 	github.com/defaultcf/fanbox-go v1.2.1
